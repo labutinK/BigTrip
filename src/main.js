@@ -3,6 +3,9 @@ import {createMenu} from "./view/Menu";
 import {createFilters} from "./view/Filters";
 import {createSorts} from "./view/Sort";
 import {createTripPointsList} from "./view/TripPointLists";
+import {generatePoint} from "./mock/point";
+import './mock/point';
+import dayjs from "dayjs";
 
 const POINTS_COUNT = 5;
 
@@ -24,5 +27,7 @@ render(headerFiltersWrapper, createFilters(), `beforeend`);
 
 render(contentWrapper, createSorts(), `afterbegin`);
 
-
-render(contentWrapper, createTripPointsList(POINTS_COUNT), `afterbegin`);
+let points = new Array(POINTS_COUNT).fill().map(() => generatePoint()).sort(function (a, b) {
+  return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
+});
+render(contentWrapper, createTripPointsList(points), `afterbegin`);

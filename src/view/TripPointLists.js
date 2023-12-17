@@ -1,12 +1,12 @@
 import {createTripPoint} from "./TripPoint";
 
-export const createTripPointsList = (pointsCount) => {
+export const createTripPointsList = (points) => {
   // Начало списка
   let tripPointsList = `<ul class="trip-events__list">`;
 
   // Добавляем каждую точку маршрута в список
-  for (let i = 0; i < pointsCount; i++) {
-    tripPointsList += createTripPoint(i);
+  for (let i = 0; i < points.length; i++) {
+    tripPointsList += createTripPoint(points[i]);
   }
 
   // Конец списка
