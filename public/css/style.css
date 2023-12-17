@@ -562,7 +562,9 @@ main {
   -ms-flex-align: center;
       align-items: center;
   padding: 20px; }
-
+.event__offer-cost{
+  white-space: nowrap;
+}
 .event__date {
   display: block;
   min-width: 80px;

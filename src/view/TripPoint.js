@@ -4,6 +4,26 @@ export const createTripPoint = (point) => {
 
   const favoriteClassName = point.isFavorite ? `event__favorite-btn--active` : ``;
 
+  const getOffers = () => {
+    let str = ``;
+    if (point.offers.length > 0) {
+      str += `<ul class="event__selected-offers">`;
+      for (let i = 0; i < point.offers.length; i++) {
+        str += `
+            <li class="event__offer">
+                <span class="event__offer-title">${point.offers[i].name}</span>
+                <span class="event__offer-cost">
+                    &plus;&euro;&nbsp;
+                    <span class="event__offer-price">${point.offers[i].cost}</span>
+                </span>
+              </li>
+            `;
+      }
+      str += `</ul>`;
+    }
+    return str;
+  };
+
   return `
         <li class="trip-events__item">
               <div class="event">
@@ -24,13 +44,7 @@ export const createTripPoint = (point) => {
                   &euro;&nbsp;<span class="event__price-value">${point.cost}</span>
                 </p>
                 <h4 class="visually-hidden">Offers:</h4>
-                <ul class="event__selected-offers">
-                  <li class="event__offer">
-                    <span class="event__offer-title">Order Uber</span>
-                    &plus;&euro;&nbsp;
-                    <span class="event__offer-price">20</span>
-                  </li>
-                </ul>
+                ${getOffers()}
                 <button class="event__favorite-btn ${favoriteClassName}" type="button">
                   <span class="visually-hidden">Add to favorite</span>
                   <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">

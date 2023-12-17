@@ -25,9 +25,9 @@ render(headerNavWrapper, createMenu(), `beforeend`);
 render(headerFiltersWrapper, createFilters(), `beforeend`);
 
 
-render(contentWrapper, createSorts(), `afterbegin`);
-
 let points = new Array(POINTS_COUNT).fill().map(() => generatePoint()).sort(function (a, b) {
   return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
 });
 render(contentWrapper, createTripPointsList(points), `afterbegin`);
+render(contentWrapper, createSorts(), `afterbegin`);
+
