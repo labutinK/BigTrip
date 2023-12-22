@@ -51,14 +51,17 @@ export const offers = new Map([
       {
         name: `Некурящий водитель`,
         cost: 2,
+        formName: `non_smoking_driver`
       },
       {
         name: `Помощь с багажом`,
         cost: 10,
+        formName: `luggage_help`
       },
       {
         name: `Бронь на время`,
         cost: 20,
+        formName: `time_booking`
       },
     ]
   ],
@@ -68,6 +71,7 @@ export const offers = new Map([
       {
         name: `Выслать расписание`,
         cost: 2,
+        formName: `get_schedule`
       },
     ]
   ],
@@ -77,10 +81,12 @@ export const offers = new Map([
       {
         name: `Выслать расписание`,
         cost: 2,
+        formName: `get_schedule`
       },
       {
         name: `Доп. место для питомца`,
         cost: 10,
+        formName: `additional_pet_place`
       },
     ]
   ],
@@ -90,14 +96,17 @@ export const offers = new Map([
       {
         name: `Просторная каюта`,
         cost: 45,
+        formName: `large_place`
       },
       {
         name: `Ужин включен`,
         cost: 15,
+        formName: `dinner_included`
       },
       {
         name: `Страховка`,
         cost: 25,
+        formName: `insurance`
       },
     ]
   ],
@@ -107,6 +116,7 @@ export const offers = new Map([
       {
         name: `Помощь с выбором`,
         cost: 10,
+        formName: `choice_help`
       },
     ]
   ],
@@ -116,14 +126,17 @@ export const offers = new Map([
       {
         name: `Водитель на день`,
         cost: 200,
+        formName: `one_day_driver`
       },
       {
         name: `Помощь с багажом`,
         cost: 10,
+        formName: `luggage_help`
       },
       {
         name: `Бронь на время`,
         cost: 20,
+        formName: `time_booking`
       },
     ]
   ],
@@ -133,14 +146,17 @@ export const offers = new Map([
       {
         name: `Багаж`,
         cost: 20,
+        formName: `luggage_help`
       },
       {
         name: `Ненормативный багаж`,
         cost: 40,
+        formName: `unformat_luggage`
       },
       {
         name: `Регистрация заранее`,
         cost: 20,
+        formName: `registration_in_advance`
       },
     ]
   ],
@@ -150,14 +166,17 @@ export const offers = new Map([
       {
         name: `Некурящий водитель`,
         cost: 2,
+        formName: `non_smoking_driver`
       },
       {
         name: `Помощь с багажом`,
         cost: 10,
+        formName: `luggage_help`
       },
       {
         name: `Бронь на время`,
         cost: 20,
+        formName: `time_booking`
       },
     ]
   ],
@@ -167,14 +186,17 @@ export const offers = new Map([
       {
         name: `Некурящий водитель`,
         cost: 2,
+        formName: `non_smoking_driver`
       },
       {
         name: `Помощь с багажом`,
         cost: 10,
+        formName: `luggage_help`
       },
       {
         name: `Бронь на время`,
         cost: 20,
+        formName: `time_booking`
       },
     ]
   ],
@@ -184,10 +206,12 @@ export const offers = new Map([
       {
         name: `Столик у окна`,
         cost: 15,
+        formName: `table_by_window`
       },
       {
         name: `Бронь на время`,
         cost: 20,
+        formName: `time_booking`
       },
     ]
   ],
