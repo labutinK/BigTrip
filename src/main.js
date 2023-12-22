@@ -7,7 +7,7 @@ import {generatePoint} from "./mock/point";
 import './mock/point';
 import dayjs from "dayjs";
 
-const POINTS_COUNT = 5;
+const POINTS_COUNT = 15;
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
