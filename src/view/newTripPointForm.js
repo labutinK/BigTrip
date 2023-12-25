@@ -6,24 +6,27 @@ import {offers} from "../mock/consts";
 export const tripPointForm = (point) => {
 
   const getDestinationInfo = () => {
-    let destinationBlock =
-        `<section class="event__section  event__section--destination">
+    let destinationBlock = ``;
+    if (point.destination.description || point.destination.photos.length > 0) {
+      destinationBlock +=
+          `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>`;
 
-    if (point.destination.description) {
-      destinationBlock += `<p class="event__destination-description">${point.destination.description}</p>`;
-    }
-    if (point.destination.photos.length > 0) {
-      destinationBlock += `<div class="event__photos-container">
+      if (point.destination.description) {
+        destinationBlock += `<p class="event__destination-description">${point.destination.description}</p>`;
+      }
+      if (point.destination.photos.length > 0) {
+        destinationBlock += `<div class="event__photos-container">
                       <div class="event__photos-tape">`;
-      point.destination.photos.forEach((photo) => {
-        destinationBlock += `<img class="event__photo" src="${photo}" alt="Event photo">`;
-      });
+        point.destination.photos.forEach((photo) => {
+          destinationBlock += `<img class="event__photo" src="${photo}" alt="Event photo">`;
+        });
 
-      destinationBlock += `</div></div>`;
+        destinationBlock += `</div></div>`;
+      }
+
+      destinationBlock += `</section>`;
     }
-
-    destinationBlock += `</section>`;
 
     return destinationBlock;
 

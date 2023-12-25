@@ -1,22 +1,22 @@
-export const createFilters = () => {
+import {getRandomInteger} from "../utils";
+
+export const createFilters = (filters) => {
+  const getFilters = () => {
+    return filters.reduce((sum, cur) => {
+      let checked = cur.checked ? `checked` : ``;
+      let id = cur.name.toLowerCase() + `_` + getRandomInteger(1000, 10000);
+
+      return sum + `<div class="trip-filters__filter">
+      <input id="filter-${id}" class="trip-filters__filter-input visually-hidden" type="radio" name="trip-filter" value="${cur.value}" ${checked}>
+      <label class="trip-filters__filter-label" for="filter-${id}">${cur.label}</label>
+    </div>`;
+    }, ``);
+  };
+
   return `
  <form class="trip-filters" action="#" method="get">
-                <div class="trip-filters__filter">
-                  <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" checked>
-                  <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
-                </div>
-
-                <div class="trip-filters__filter">
-                  <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future">
-                  <label class="trip-filters__filter-label" for="filter-future">Future</label>
-                </div>
-
-                <div class="trip-filters__filter">
-                  <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past">
-                  <label class="trip-filters__filter-label" for="filter-past">Past</label>
-                </div>
-
-                <button class="visually-hidden" type="submit">Accept filter</button>
-              </form>
+        ${getFilters()}
+    <button class="visually-hidden" type="submit">Accept filter</button>
+  </form>
     `;
 };

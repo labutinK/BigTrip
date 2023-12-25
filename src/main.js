@@ -5,6 +5,7 @@ import {createSorts} from "./view/Sort";
 import {createTripPointsList} from "./view/TripPointLists";
 import {generatePoint} from "./mock/point";
 import './mock/point';
+import {filters, menuItems} from "./mock/consts";
 import dayjs from "dayjs";
 
 const POINTS_COUNT = 15;
@@ -20,13 +21,15 @@ const headerNavWrapper = siteHeaderElement.querySelector(`.trip-controls__naviga
 const headerFiltersWrapper = siteHeaderElement.querySelector(`.trip-controls__filters`);
 const contentWrapper = siteBodyElement.querySelector(`.trip-events`);
 
-render(headerTripWrapper, createTripInfo(), `afterbegin`);
-render(headerNavWrapper, createMenu(), `beforeend`);
-render(headerFiltersWrapper, createFilters(), `beforeend`);
 
 let points = new Array(POINTS_COUNT).fill().map(() => generatePoint()).sort(function (a, b) {
   return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
 });
+
+render(headerTripWrapper, createTripInfo(points), `afterbegin`);
+render(headerNavWrapper, createMenu(menuItems), `beforeend`);
+render(headerFiltersWrapper, createFilters(filters), `beforeend`);
+
 
 render(contentWrapper, createTripPointsList(points, true), `afterbegin`);
 render(contentWrapper, createSorts(), `afterbegin`);

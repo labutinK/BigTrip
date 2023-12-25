@@ -46,3 +46,7 @@ export const displayDateDiff = function (date1, date2) {
 
   return result;
 };
+
+export const isSameDate = function (date1, date2) {
+  return date1.diff(date2, `minute`, true) === 0;
+};
