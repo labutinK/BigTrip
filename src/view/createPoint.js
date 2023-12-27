@@ -7,21 +7,29 @@ export const createPoint = (wrapper, point) =>{
   const pointItem = new TripPoint(point);
   const pointItemEdit = new TripPointEdit(point);
 
+  const closeForm = (evt)=> {
+    evt = evt || window.event;
+    if (`key` in evt) {
+      displayPoint();
+    }
+    document.removeEventListener(`keydown`, closeForm);
+  };
+
   const displayForm = () => {
     wrapper.replaceChild(pointItemEdit.getElement(), pointItem.getElement());
+    document.addEventListener(`keydown`, closeForm);
   };
 
   const displayPoint = () => {
     wrapper.replaceChild(pointItem.getElement(), pointItemEdit.getElement());
   };
 
+
   pointItem.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
     displayForm();
   });
 
-  pointItemEdit.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, () => {
-    displayPoint();
-  });
+
   pointItemEdit.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
     evt.preventDefault();
     displayPoint();
