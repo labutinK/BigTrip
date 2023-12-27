@@ -2,8 +2,9 @@ import {displayDate} from "../utils";
 import {pointTypes} from "../mock/consts";
 import {towns} from "../mock/consts";
 import {offers} from "../mock/consts";
+import {createElement} from "../utils";
 
-export const tripPointForm = (point) => {
+const createTripPointForm = (point) => {
 
   const getDestinationInfo = () => {
     let destinationBlock = ``;
@@ -146,3 +147,22 @@ export const tripPointForm = (point) => {
               </form>
             </li>`;
 };
+
+
+export default class TripPointEdit {
+  constructor(point) {
+    this._element = null;
+    this._point = point;
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(createTripPointForm(this._point));
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

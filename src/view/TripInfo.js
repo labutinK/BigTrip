@@ -1,6 +1,6 @@
-import {displayDate, isSameDate} from "../utils";
+import {createElement, displayDate, isSameDate} from "../utils";
 
-export const createTripInfo = (points) => {
+const createTripInfoTemplate = (points) => {
   let cost = points.reduce(function (sum, current) {
     return sum + current.cost;
   }, 0);
@@ -48,3 +48,22 @@ export const createTripInfo = (points) => {
             </p>
           </section>`;
 };
+
+export default class TripInfo {
+  constructor(points) {
+    this._element = null;
+    this._point = points;
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(createTripInfoTemplate(this._point));
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+

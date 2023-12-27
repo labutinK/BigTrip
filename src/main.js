@@ -1,18 +1,16 @@
-import {createTripInfo} from "./view/TripInfo";
-import {createMenu} from "./view/Menu";
-import {createFilters} from "./view/Filters";
-import {createSorts} from "./view/Sort";
-import {createTripPointsList} from "./view/TripPointLists";
+import Menu from "./view/Menu";
+import Filters from "./view/Filters";
+import Sorts from "./view/Sort";
 import {generatePoint} from "./mock/point";
-import './mock/point';
 import {filters, menuItems} from "./mock/consts";
 import dayjs from "dayjs";
+import TripList from "./view/TripList";
+import {createPoint} from "./view/createPoint";
+import {renderElement, DOM_POSITIONS} from "./utils";
+import TripInfoView from "./view/TripInfo";
+
 
 const POINTS_COUNT = 15;
-
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
 
 const siteBodyElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteBodyElement.querySelector(`.page-header`);
@@ -26,11 +24,14 @@ let points = new Array(POINTS_COUNT).fill().map(() => generatePoint()).sort(func
   return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
 });
 
-render(headerTripWrapper, createTripInfo(points), `afterbegin`);
-render(headerNavWrapper, createMenu(menuItems), `beforeend`);
-render(headerFiltersWrapper, createFilters(filters), `beforeend`);
+renderElement(headerTripWrapper, (new TripInfoView(points)).getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
+renderElement(headerNavWrapper, (new Menu(menuItems)).getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
+renderElement(headerFiltersWrapper, (new Filters(filters)).getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
+renderElement(contentWrapper, (new Sorts()).getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
 
-
-render(contentWrapper, createTripPointsList(points, true), `afterbegin`);
-render(contentWrapper, createSorts(), `afterbegin`);
+const tripListElement = new TripList();
+renderElement(contentWrapper, tripListElement.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+points.forEach((point) => {
+  createPoint(tripListElement.getElement(), point);
+});
 

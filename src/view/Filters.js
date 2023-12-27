@@ -1,6 +1,5 @@
-import {getRandomInteger} from "../utils";
-
-export const createFilters = (filters) => {
+import {createElement, getRandomInteger} from "../utils";
+const createFilters = (filters) => {
   const getFilters = () => {
     return filters.reduce((sum, cur) => {
       let checked = cur.checked ? `checked` : ``;
@@ -20,3 +19,24 @@ export const createFilters = (filters) => {
   </form>
     `;
 };
+
+
+export default class Filters {
+  constructor(points) {
+    this._element = null;
+    this._filters = points;
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(createFilters(this._filters));
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+
+
