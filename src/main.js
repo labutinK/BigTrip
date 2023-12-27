@@ -11,7 +11,7 @@ import TripInfoView from "./view/TripInfo";
 import EmptyList from "./view/EmptyList";
 
 
-const POINTS_COUNT = 0;
+const POINTS_COUNT = 15;
 
 const siteBodyElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteBodyElement.querySelector(`.page-header`);
@@ -25,19 +25,23 @@ let points = new Array(POINTS_COUNT).fill().map(() => generatePoint()).sort(func
   return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
 });
 
-if (points.length > 0) {
-  renderElement(headerTripWrapper, (new TripInfoView(points)).getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
-  renderElement(headerNavWrapper, (new Menu(menuItems)).getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
+const createBoard = (pointsData) => {
+
+  if (pointsData.length > 0) {
+    renderElement(headerTripWrapper, (new TripInfoView(pointsData)).getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
+
+    renderElement(contentWrapper, (new Sorts()).getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
+
+    const tripListElement = new TripList();
+    renderElement(contentWrapper, tripListElement.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+    pointsData.forEach((point) => {
+      createPoint(tripListElement.getElement(), point);
+    });
+  } else {
+    renderElement(contentWrapper, new EmptyList().getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
+  }
   renderElement(headerFiltersWrapper, (new Filters(filters)).getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
-  renderElement(contentWrapper, (new Sorts()).getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
+  renderElement(headerNavWrapper, (new Menu(menuItems)).getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
+};
 
-  const tripListElement = new TripList();
-  renderElement(contentWrapper, tripListElement.getElement(), DOM_POSITIONS[`BEFOREEND`]);
-  points.forEach((point) => {
-    createPoint(tripListElement.getElement(), point);
-  });
-} else {
-  renderElement(contentWrapper, new EmptyList().getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
-}
-
-
+createBoard(points);

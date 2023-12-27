@@ -1,6 +1,6 @@
 import TripPoint from "./TripPoint";
 import TripPointEdit from "./TripPointEdit";
-import {DOM_POSITIONS, renderElement} from "../utils";
+import {DOM_POSITIONS, isEvtEscape, renderElement} from "../utils";
 
 
 export const createPoint = (wrapper, point) =>{
@@ -8,11 +8,10 @@ export const createPoint = (wrapper, point) =>{
   const pointItemEdit = new TripPointEdit(point);
 
   const closeForm = (evt)=> {
-    evt = evt || window.event;
-    if (`key` in evt) {
+    if (isEvtEscape(evt)) {
       displayPoint();
+      document.removeEventListener(`keydown`, closeForm);
     }
-    document.removeEventListener(`keydown`, closeForm);
   };
 
   const displayForm = () => {
