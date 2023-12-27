@@ -27,9 +27,13 @@ export default class Filters {
     this._filters = points;
   }
 
+  getTemplate() {
+    return createFilters(this._filters);
+  }
+
   getElement() {
     if (!this._element) {
-      this._element = createElement(createFilters(this._filters));
+      this._element = createElement(this.getTemplate());
     }
     return this._element;
   }

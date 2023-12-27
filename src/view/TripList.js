@@ -30,9 +30,12 @@ export default class TripList {
     this._element = null;
   }
 
+  getTemplate() {
+    return createTripPointsList();
+  }
   getElement() {
     if (!this._element) {
-      this._element = createElement(createTripPointsList());
+      this._element = createElement(this.getTemplate());
     }
     return this._element;
   }

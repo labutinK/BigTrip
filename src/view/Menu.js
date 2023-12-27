@@ -22,9 +22,12 @@ export default class Menu {
     this._items = items;
   }
 
+  getTemplate() {
+    return createMenu(this._items);
+  }
   getElement() {
     if (!this._element) {
-      this._element = createElement(createMenu(this._items));
+      this._element = createElement(this.getTemplate());
     }
     return this._element;
   }

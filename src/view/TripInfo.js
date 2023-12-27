@@ -55,9 +55,12 @@ export default class TripInfo {
     this._point = points;
   }
 
+  getTemplate() {
+    return createTripInfoTemplate(this._point);
+  }
   getElement() {
     if (!this._element) {
-      this._element = createElement(createTripInfoTemplate(this._point));
+      this._element = createElement(this.getTemplate());
     }
     return this._element;
   }

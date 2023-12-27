@@ -155,9 +155,13 @@ export default class TripPointEdit {
     this._point = point;
   }
 
+  getTemplate() {
+    return createTripPointForm(this._point);
+  }
+
   getElement() {
     if (!this._element) {
-      this._element = createElement(createTripPointForm(this._point));
+      this._element = createElement(this.getTemplate());
     }
     return this._element;
   }

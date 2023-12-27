@@ -87,7 +87,7 @@ export const renderElement = function (container, element, position) {
 
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
-  newElement.innerHTML = template.trim();
+  newElement.innerHTML = template;
 
-  return newElement.firstChild;
+  return newElement.firstElementChild;
 };

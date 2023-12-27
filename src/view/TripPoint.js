@@ -65,9 +65,13 @@ export default class TripPoint {
     this._point = point;
   }
 
+  getTemplate() {
+    return createTripPoint(this._point);
+  }
+
   getElement() {
     if (!this._element) {
-      this._element = createElement(createTripPoint(this._point));
+      this._element = createElement(this.getTemplate());
     }
     return this._element;
   }
