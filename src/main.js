@@ -9,6 +9,7 @@ import {createPoint} from "./view/createPoint";
 import {renderElement, DOM_POSITIONS} from "./utils";
 import TripInfoView from "./view/TripInfo";
 import EmptyList from "./view/EmptyList";
+import AbstractView from "./view/AbstractView";
 
 
 const POINTS_COUNT = 15;

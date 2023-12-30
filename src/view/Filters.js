@@ -1,4 +1,5 @@
-import {createElement, getRandomInteger} from "../utils";
+import {getRandomInteger} from "../utils";
+import AbstractView from "./AbstractView";
 const createFilters = (filters) => {
   const getFilters = () => {
     return filters.reduce((sum, cur) => {
@@ -21,25 +22,14 @@ const createFilters = (filters) => {
 };
 
 
-export default class Filters {
+export default class Filters extends AbstractView {
   constructor(points) {
-    this._element = null;
+    super();
     this._filters = points;
   }
 
   getTemplate() {
     return createFilters(this._filters);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
 

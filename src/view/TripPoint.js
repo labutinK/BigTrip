@@ -1,4 +1,5 @@
-import {displayDate, displayDateDiff, createElement} from "../utils";
+import {displayDate, displayDateDiff} from "../utils";
+import AbstractView from "./AbstractView";
 
 const createTripPoint = (point) => {
 
@@ -59,25 +60,14 @@ const createTripPoint = (point) => {
     `;
 };
 
-export default class TripPoint {
+export default class TripPoint extends AbstractView {
   constructor(point) {
-    this._element = null;
+    super();
     this._point = point;
   }
 
   getTemplate() {
     return createTripPoint(this._point);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
 

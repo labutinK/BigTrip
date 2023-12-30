@@ -2,7 +2,7 @@ import {displayDate} from "../utils";
 import {pointTypes} from "../mock/consts";
 import {towns} from "../mock/consts";
 import {offers} from "../mock/consts";
-import {createElement} from "../utils";
+import AbstractView from "./AbstractView";
 
 const createTripPointForm = (point) => {
 
@@ -10,7 +10,7 @@ const createTripPointForm = (point) => {
     let destinationBlock = ``;
     if (point.destination.description || point.destination.photos.length > 0) {
       destinationBlock +=
-          `<section class="event__section  event__section--destination">
+                `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>`;
 
       if (point.destination.description) {
@@ -48,7 +48,7 @@ const createTripPointForm = (point) => {
       offersForType.forEach((offer, ind) => {
         let idField = (Math.random() + 1).toString(36).substring(3) + `_` + ind;
         offersListStr +=
-            `<div class="event__offer-selector">
+                    `<div class="event__offer-selector">
                 <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.formName}-${idField}" type="checkbox" name="event-offer-${offer.formName}" ${offerIsChecked(offer)}>
                 <label class="event__offer-label" for="event-offer-${offer.formName}-${idField}">
                   <span class="event__offer-title">${offer.name}</span>
@@ -149,9 +149,9 @@ const createTripPointForm = (point) => {
 };
 
 
-export default class TripPointEdit {
+export default class TripPointEdit extends AbstractView {
   constructor(point) {
-    this._element = null;
+    super();
     this._point = point;
   }
 
@@ -159,14 +159,4 @@ export default class TripPointEdit {
     return createTripPointForm(this._point);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }

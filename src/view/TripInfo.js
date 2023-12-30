@@ -1,4 +1,5 @@
-import {createElement, displayDate, isSameDate} from "../utils";
+import {displayDate, isSameDate} from "../utils";
+import AbstractView from "./AbstractView";
 
 const createTripInfoTemplate = (points) => {
   let cost = points.reduce(function (sum, current) {
@@ -49,24 +50,14 @@ const createTripInfoTemplate = (points) => {
           </section>`;
 };
 
-export default class TripInfo {
+export default class TripInfo extends AbstractView {
   constructor(points) {
-    this._element = null;
+    super();
     this._point = points;
   }
 
   getTemplate() {
     return createTripInfoTemplate(this._point);
-  }
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
 
