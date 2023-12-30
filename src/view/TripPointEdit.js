@@ -153,6 +153,18 @@ export default class TripPointEdit extends AbstractView {
   constructor(point) {
     super();
     this._point = point;
+    this._callback = {};
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  }
+
+  setFormSubmitHandler(cb) {
+    this._callback.formSubmit = cb;
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 
   getTemplate() {

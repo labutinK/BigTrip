@@ -44,4 +44,5 @@ const createBoard = (pointsData) => {
   renderElement(headerNavWrapper, (new Menu(menuItems)).getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
 };
 
+
 createBoard(points);

@@ -1,3 +1,5 @@
+import AbstractView from "../view/AbstractView";
+
 export const DOM_POSITIONS = {
   BEFOREBEGIN: `beforebegin`,
   AFTERBEGIN: `afterbegin`,
@@ -13,6 +15,13 @@ export const DOM_POSITIONS = {
  * @param {string} position - Позиция отрисовки (beforebegin, afterbegin, beforeend, afterend).
  */
 export const renderElement = function (container, element, position) {
+  if (container instanceof AbstractView) {
+    container = container.getElement();
+  }
+  if (element instanceof AbstractView) {
+    element = element.getElement();
+  }
+
   switch (position) {
     case DOM_POSITIONS.BEFOREBEGIN:
       container.before(element);

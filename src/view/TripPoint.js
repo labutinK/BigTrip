@@ -64,6 +64,17 @@ export default class TripPoint extends AbstractView {
   constructor(point) {
     super();
     this._point = point;
+    this._callback = {};
+    this._editPointHandler = this._editPointHandler.bind(this);
+  }
+
+  _editPointHandler(evt) {
+    evt.preventDefault();
+    this._callback.editPointClick();
+  }
+  setEditOnHandler(cb) {
+    this._callback.editPointClick = cb;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editPointHandler);
   }
 
   getTemplate() {

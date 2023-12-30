@@ -24,15 +24,11 @@ export const createPoint = (wrapper, point) =>{
     wrapper.replaceChild(pointItem.getElement(), pointItemEdit.getElement());
   };
 
+  pointItem.setEditOnHandler(displayForm);
 
-  pointItem.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-    displayForm();
-  });
-
-
-  pointItemEdit.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
-    evt.preventDefault();
+  pointItemEdit.setFormSubmitHandler(() => {
     displayPoint();
+    document.removeEventListener(`keydown`, closeForm);
   });
 
 
