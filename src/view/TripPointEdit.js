@@ -1,4 +1,4 @@
-import {displayDate} from "../utils";
+import {displayDate} from "../utils/date";
 import {pointTypes} from "../mock/consts";
 import {towns} from "../mock/consts";
 import {offers} from "../mock/consts";

@@ -1,4 +1,4 @@
-import {displayDate, displayDateDiff} from "../utils";
+import {displayDate, displayDateDiff} from "../utils/date";
 import AbstractView from "./AbstractView";
 
 const createTripPoint = (point) => {

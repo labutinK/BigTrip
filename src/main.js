@@ -6,10 +6,9 @@ import {filters, menuItems} from "./mock/consts";
 import dayjs from "dayjs";
 import TripList from "./view/TripList";
 import {createPoint} from "./view/createPoint";
-import {renderElement, DOM_POSITIONS} from "./utils";
+import {renderElement, DOM_POSITIONS} from "./utils/render";
 import TripInfoView from "./view/TripInfo";
 import EmptyList from "./view/EmptyList";
-import AbstractView from "./view/AbstractView";
 
 
 const POINTS_COUNT = 15;

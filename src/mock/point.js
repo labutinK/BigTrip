@@ -1,4 +1,4 @@
-import {getRandomInteger, generateUnicNumber} from '../utils';
+import {getRandomInteger, generateUnicNumber} from "../utils/common";
 import dayjs from 'dayjs';
 import {pointTypes, towns, descriptions, offers} from './consts';
 

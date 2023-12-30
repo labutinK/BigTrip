@@ -1,4 +1,4 @@
-import {getRandomInteger} from "../utils";
+import {getRandomInteger} from "../utils/common";
 import AbstractView from "./AbstractView";
 const createFilters = (filters) => {
   const getFilters = () => {

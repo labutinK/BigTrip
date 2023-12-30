@@ -1,4 +1,4 @@
-import {displayDate, isSameDate} from "../utils";
+import {displayDate, isSameDate} from "../utils/date";
 import AbstractView from "./AbstractView";
 
 const createTripInfoTemplate = (points) => {
