@@ -45,7 +45,6 @@ export default class Trip {
     renderElement(this._htmlElements.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
     this._defaultPoints.forEach((point) => {
       let pointPresenter = new Point(this._tripList.getElement(), point);
-      pointPresenter.init();
     });
   }
 

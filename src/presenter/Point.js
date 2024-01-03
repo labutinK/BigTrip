@@ -11,14 +11,20 @@ export default class Point {
     this._displayForm = this._displayForm.bind(this);
     this._closeForm = this._closeForm.bind(this);
     this._displayPoint = this._displayPoint.bind(this);
+    this._favoriteStatusChange = this._favoriteStatusChange.bind(this);
+    this.init();
   }
 
-  init() {
-    this._pointItem = new TripPoint(this._point);
+  init(reRender = false) {
+    if (!reRender) {
+      this._pointItem = new TripPoint(this._point);
+      renderElement(this._listWrapper, this._pointItem.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+    }
     this._pointItemEdit = new TripPointEdit(this._point);
     this._pointItem.setEditOnHandler(this._displayForm);
+    this._pointItem.setFavoriteHandler(this._favoriteStatusChange);
     this._pointItemEdit.setFormSubmitHandler(this._displayPoint);
-    renderElement(this._listWrapper, this._pointItem.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+
   }
 
   _closeForm(evt) {
@@ -31,6 +37,14 @@ export default class Point {
   _displayForm() {
     this._listWrapper.replaceChild(this._pointItemEdit.getElement(), this._pointItem.getElement());
     document.addEventListener(`keydown`, this._closeForm);
+  }
+
+  _favoriteStatusChange() {
+    this._point = Object.assign(this._point, {'isFavorite': !this._point.isFavorite});
+    let pointItem = new TripPoint(this._point);
+    this._listWrapper.replaceChild(pointItem.getElement(), this._pointItem.getElement());
+    this._pointItem = pointItem;
+    this.init(true);
   }
 
   _displayPoint() {
