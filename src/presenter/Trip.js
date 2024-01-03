@@ -7,6 +7,7 @@ import {filters, menuItems} from "../mock/consts";
 import Menu from "../view/Menu";
 import {DOM_POSITIONS, renderElement} from "../utils/render";
 import Point from "./Point";
+import {updateItem} from "../utils/common";
 
 export default class Trip {
   constructor() {
@@ -25,30 +26,51 @@ export default class Trip {
       headerFilterWrapper: this._htmlWrapper.querySelector(`.trip-controls__filters`),
       contentWrapper: this._htmlWrapper.querySelector(`.trip-events`),
     };
+    this._handleUpdateItem = this._handleUpdateItem.bind(this);
   }
 
   init(points) {
-    this._defaultPoints = points;
-    this.tripInfo = new TripInfoView(this._defaultPoints);
-    if (this._defaultPoints.length > 0) {
+    this._boardPoints = points;
+    this._pointPresenter = {};
+    this.tripInfo = new TripInfoView(this._boardPoints);
+    this._renderTripList();
+  }
+
+
+  _renderTripList() {
+    if (this._boardPoints.length > 0) {
       this._renderTripInfo();
       this._renderSort();
-      this._renderTripList();
+      renderElement(this._htmlElements.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+      this._boardPoints.forEach((point) => {
+        this._renderTripItem(point);
+      });
     } else {
-      this._renderEmptyTripList();
+      this._renderEmptyList();
     }
     this._renderFilters();
     this._renderMenu();
   }
 
-  _renderTripList() {
-    renderElement(this._htmlElements.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
-    this._defaultPoints.forEach((point) => {
-      let pointPresenter = new Point(this._tripList.getElement(), point);
-    });
+  _handleUpdateItem(updatedPoint) {
+    this._boardPoints = updateItem(this._boardPoints, updatedPoint);
+    this._pointPresenter[updatedPoint.id].init(updatedPoint);
   }
 
-  _renderEmptyTripList() {
+  _renderTripItem(pointData) {
+    let pointPresenter = new Point(this._tripList, this._handleUpdateItem);
+    this._pointPresenter[pointData.id] = pointPresenter;
+    pointPresenter.init(pointData);
+  }
+
+  _removeList() {
+    for (let renderedPoint of Object.values(this._pointPresenter)) {
+      renderedPoint.destroy();
+    }
+    this._pointPresenter = {};
+  }
+
+  _renderEmptyList() {
     renderElement(this._htmlElements.contentWrapper, this._emptyList.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
   }
 

@@ -2,29 +2,49 @@ import TripPoint from "../view/TripPoint";
 import TripPointEdit from "../view/TripPointEdit";
 import {DOM_POSITIONS, renderElement} from "../utils/render";
 import {isEvtEscape} from "../utils/common";
+import {replace, remove} from "../utils/render";
 
 
 export default class Point {
-  constructor(listWrapper, point) {
+  constructor(listWrapper, changeData) {
     this._listWrapper = listWrapper;
-    this._point = point;
+    this._pointItem = null;
+    this._pointItemEdit = null;
     this._displayForm = this._displayForm.bind(this);
     this._closeForm = this._closeForm.bind(this);
     this._displayPoint = this._displayPoint.bind(this);
-    this._favoriteStatusChange = this._favoriteStatusChange.bind(this);
-    this.init();
+    this._favoriteHandler = this._favoriteHandler.bind(this);
+    this._submitForm = this._submitForm.bind(this);
+    this._changeData = changeData;
   }
 
-  init(reRender = false) {
-    if (!reRender) {
-      this._pointItem = new TripPoint(this._point);
-      renderElement(this._listWrapper, this._pointItem.getElement(), DOM_POSITIONS[`BEFOREEND`]);
-    }
+  init(point) {
+    const prevPointItem = this._pointItem;
+    const prevPointEditItem = this._pointItemEdit;
+
+    this._point = point;
+    this._pointItem = new TripPoint(this._point);
     this._pointItemEdit = new TripPointEdit(this._point);
     this._pointItem.setEditOnHandler(this._displayForm);
-    this._pointItem.setFavoriteHandler(this._favoriteStatusChange);
-    this._pointItemEdit.setFormSubmitHandler(this._displayPoint);
+    this._pointItemEdit.setFormSubmitHandler(this._submitForm);
+    this._pointItem.setFavoriteHandler(this._favoriteHandler);
+    if (prevPointItem === null || prevPointEditItem === null) {
+      renderElement(this._listWrapper.getElement(), this._pointItem.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+      return;
+    }
 
+    if (this._listWrapper.getElement().contains(prevPointItem.getElement())) {
+      replace(this._pointItem, prevPointItem);
+    }
+    if (this._listWrapper.getElement().contains(prevPointEditItem.getElement())) {
+      replace(this._pointItemEdit, prevPointEditItem);
+    }
+
+  }
+
+  destroy() {
+    remove(this._pointItem);
+    remove(this._pointItemEdit);
   }
 
   _closeForm(evt) {
@@ -35,21 +55,23 @@ export default class Point {
   }
 
   _displayForm() {
-    this._listWrapper.replaceChild(this._pointItemEdit.getElement(), this._pointItem.getElement());
+    replace(this._pointItemEdit.getElement(), this._pointItem.getElement());
     document.addEventListener(`keydown`, this._closeForm);
   }
 
-  _favoriteStatusChange() {
-    this._point = Object.assign(this._point, {'isFavorite': !this._point.isFavorite});
-    let pointItem = new TripPoint(this._point);
-    this._listWrapper.replaceChild(pointItem.getElement(), this._pointItem.getElement());
-    this._pointItem = pointItem;
-    this.init(true);
+  _favoriteHandler() {
+    return this._changeData(
+        Object.assign({}, this._point, {'isFavorite': !this._point.isFavorite})
+    );
+  }
+
+  _submitForm(point) {
+    this._changeData(point);
+    this._displayPoint();
   }
 
   _displayPoint() {
-    this._listWrapper.replaceChild(this._pointItem.getElement(), this._pointItemEdit.getElement());
+    replace(this._pointItem.getElement(), this._pointItemEdit.getElement());
     document.removeEventListener(`keydown`, this._closeForm);
   }
-
 }

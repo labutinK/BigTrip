@@ -1,5 +1,6 @@
 import {getRandomInteger, generateUnicNumber} from "../utils/common";
 import dayjs from 'dayjs';
+import {nanoid} from "nanoid";
 import {pointTypes, towns, descriptions, offers} from './consts';
 
 const fillPhotos = () => {
@@ -12,6 +13,7 @@ export const generatePoint = (newPoint = false) => {
   const type = pointTypes[getRandomInteger(0, pointTypes.length - 1)];
   const pointOffers = offers.get(type);
   return {
+    id: nanoid(10),
     type,
     offers: newPoint ? [] : pointOffers.filter((offer) => {
       if (getRandomInteger(0, 1)) {
