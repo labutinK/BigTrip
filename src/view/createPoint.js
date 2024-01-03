@@ -1,7 +1,7 @@
 import TripPoint from "./TripPoint";
 import TripPointEdit from "./TripPointEdit";
 import {DOM_POSITIONS, renderElement} from "../utils/render";
-import {isEvtEscape} from "../utils/helpers";
+import {isEvtEscape} from "../utils/common";
 
 
 export const createPoint = (wrapper, point) =>{

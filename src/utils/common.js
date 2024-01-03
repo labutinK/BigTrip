@@ -19,3 +19,8 @@ export const generateUnicNumber = function (num1 = 0, num2 = 1) {
     return newNumber;
   });
 };
+export const isEvtEscape = (evt) => {
+  evt = evt || window.event;
+  return (evt.key === `Escape` || evt.key === `Esc`);
+};
+
