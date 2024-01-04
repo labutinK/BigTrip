@@ -7,9 +7,10 @@ import {filters, menuItems} from "../mock/consts";
 import Menu from "../view/Menu";
 import {DOM_POSITIONS, renderElement} from "../utils/render";
 import Point from "./Point";
-import {updateItem} from "../utils/common";
+import {sortDuration, sortCost, sortDate, updateItem} from "../utils/common";
 import dayjs from "dayjs";
 import duration from 'dayjs/plugin/duration';
+import {SORT_TYPES} from "../const";
 
 dayjs.extend(duration);
 
@@ -32,12 +33,12 @@ export default class Trip {
     };
     this._handleUpdateItem = this._handleUpdateItem.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
-    this._resortHandler = this._resortHandler.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
   init(points) {
     this._boardPoints = points;
-    this._renderDateSort();
+    this._sortPoints(SORT_TYPES.date);
     this._pointPresenter = {};
     this.tripInfo = new TripInfoView(this._boardPoints);
     this._renderBoard();
@@ -92,37 +93,29 @@ export default class Trip {
     renderElement(this._htmlElements.headerNavWrapper, this._menu.getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
   }
 
-  _resortHandler(sortName) {
+  _handleSortTypeChange(sortType) {
+    this._sortPoints(sortType);
     this._removeList();
-    if (sortName === `date`) {
-      this._renderDateSort();
-    } else if (sortName === `time`) {
-      this._renderTimeSort();
-    } else if (sortName === `price`) {
-      this._renderPriceSort();
-    }
     this._renderTripList();
   }
 
-  _renderDateSort() {
-    this._boardPoints.sort(function (a, b) {
-      return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
-    });
-  }
-
-  _renderTimeSort() {
-    this._boardPoints.sort(function (a, b) {
-      return dayjs(a.dateStart).diff(dayjs(a.dateEnd), `minute`) - dayjs(b.dateStart).diff(dayjs(b.dateEnd), `minute`);
-    });
-  }
-
-  _renderPriceSort() {
-    this._boardPoints.sort((a, b) => a.cost < b.cost);
+  _sortPoints(sortType) {
+    switch (sortType) {
+      case SORT_TYPES.date:
+        this._boardPoints.sort(sortDate);
+        break;
+      case SORT_TYPES.time:
+        this._boardPoints.sort(sortDuration);
+        break;
+      case SORT_TYPES.price:
+        this._boardPoints.sort(sortCost);
+        break;
+    }
   }
 
   _renderSort() {
     this._sorts = new Sorts();
-    this._sorts.setResortHandler(this._resortHandler);
+    this._sorts.setResortHandler(this._handleSortTypeChange);
     renderElement(this._htmlElements.contentWrapper, this._sorts.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
   }
 
