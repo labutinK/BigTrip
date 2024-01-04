@@ -5,8 +5,13 @@ import {isEvtEscape} from "../utils/common";
 import {replace, remove} from "../utils/render";
 
 
+const Mode = {
+  DEFAULT: `DEFAULT`,
+  EDITING: `EDITING`,
+};
+
 export default class Point {
-  constructor(listWrapper, changeData) {
+  constructor(listWrapper, changeData, closeOthers) {
     this._listWrapper = listWrapper;
     this._pointItem = null;
     this._pointItemEdit = null;
@@ -16,6 +21,9 @@ export default class Point {
     this._favoriteHandler = this._favoriteHandler.bind(this);
     this._submitForm = this._submitForm.bind(this);
     this._changeData = changeData;
+    this._closeOthers = closeOthers;
+    this._mode = Mode.DEFAULT;
+
   }
 
   init(point) {
@@ -33,13 +41,14 @@ export default class Point {
       return;
     }
 
-    if (this._listWrapper.getElement().contains(prevPointItem.getElement())) {
+    if (this._mode === Mode.DEFAULT) {
       replace(this._pointItem, prevPointItem);
     }
-    if (this._listWrapper.getElement().contains(prevPointEditItem.getElement())) {
+    if (this._mode === Mode.EDITING) {
       replace(this._pointItemEdit, prevPointEditItem);
     }
-
+    remove(prevPointItem);
+    remove(prevPointEditItem);
   }
 
   destroy() {
@@ -55,6 +64,8 @@ export default class Point {
   }
 
   _displayForm() {
+    this._closeOthers(this._point.id);
+    this._mode = Mode.EDITING;
     replace(this._pointItemEdit.getElement(), this._pointItem.getElement());
     document.addEventListener(`keydown`, this._closeForm);
   }
@@ -70,8 +81,15 @@ export default class Point {
     this._displayPoint();
   }
 
+  resetView() {
+    if (this._mode === Mode[`EDITING`]) {
+      this._displayPoint();
+    }
+  }
+
   _displayPoint() {
     replace(this._pointItem.getElement(), this._pointItemEdit.getElement());
     document.removeEventListener(`keydown`, this._closeForm);
+    this._mode = Mode.DEFAULT;
   }
 }

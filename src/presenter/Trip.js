@@ -10,14 +10,14 @@ import Point from "./Point";
 import {updateItem} from "../utils/common";
 
 export default class Trip {
-  constructor() {
+  constructor(wrapper) {
+    this._htmlWrapper = wrapper;
     this._tripList = new TripList();
     this._sorts = new Sorts();
     this._emptyList = new EmptyList();
     this._filters = new FiltersView(filters);
     this._menu = new Menu(menuItems);
 
-    this._htmlWrapper = document.querySelector(`.page-body`);
     this._htmlElements = {
       siteBody: this._htmlWrapper.querySelector(`.page-body`),
       siteHeader: this._htmlWrapper.querySelector(`.page-header`),
@@ -27,6 +27,7 @@ export default class Trip {
       contentWrapper: this._htmlWrapper.querySelector(`.trip-events`),
     };
     this._handleUpdateItem = this._handleUpdateItem.bind(this);
+    this._handleModeChange = this._handleModeChange.bind(this);
   }
 
   init(points) {
@@ -35,7 +36,6 @@ export default class Trip {
     this.tripInfo = new TripInfoView(this._boardPoints);
     this._renderTripList();
   }
-
 
   _renderTripList() {
     if (this._boardPoints.length > 0) {
@@ -58,9 +58,13 @@ export default class Trip {
   }
 
   _renderTripItem(pointData) {
-    let pointPresenter = new Point(this._tripList, this._handleUpdateItem);
+    let pointPresenter = new Point(this._tripList, this._handleUpdateItem, this._handleModeChange);
     this._pointPresenter[pointData.id] = pointPresenter;
     pointPresenter.init(pointData);
+  }
+
+  _handleModeChange() {
+    Object.values(this._pointPresenter).forEach((pointPresenter) => pointPresenter.resetView());
   }
 
   _removeList() {

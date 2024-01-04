@@ -8,6 +8,7 @@ let points = new Array(POINTS_COUNT).fill().map(() => generatePoint()).sort(func
   return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
 });
 
-let TripPresenter = new Trip();
+let htmlWrapper = document.querySelector(`.page-body`);
+let TripPresenter = new Trip(htmlWrapper);
 
 TripPresenter.init(points);
