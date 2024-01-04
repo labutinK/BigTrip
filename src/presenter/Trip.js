@@ -8,12 +8,16 @@ import Menu from "../view/Menu";
 import {DOM_POSITIONS, renderElement} from "../utils/render";
 import Point from "./Point";
 import {updateItem} from "../utils/common";
+import dayjs from "dayjs";
+import duration from 'dayjs/plugin/duration';
+
+dayjs.extend(duration);
+
 
 export default class Trip {
   constructor(wrapper) {
     this._htmlWrapper = wrapper;
     this._tripList = new TripList();
-    this._sorts = new Sorts();
     this._emptyList = new EmptyList();
     this._filters = new FiltersView(filters);
     this._menu = new Menu(menuItems);
@@ -28,19 +32,19 @@ export default class Trip {
     };
     this._handleUpdateItem = this._handleUpdateItem.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._resortHandler = this._resortHandler.bind(this);
   }
 
   init(points) {
     this._boardPoints = points;
+    this._renderDateSort();
     this._pointPresenter = {};
     this.tripInfo = new TripInfoView(this._boardPoints);
-    this._renderTripList();
+    this._renderBoard();
   }
 
   _renderTripList() {
     if (this._boardPoints.length > 0) {
-      this._renderTripInfo();
-      this._renderSort();
       renderElement(this._htmlElements.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
       this._boardPoints.forEach((point) => {
         this._renderTripItem(point);
@@ -48,6 +52,12 @@ export default class Trip {
     } else {
       this._renderEmptyList();
     }
+  }
+
+  _renderBoard() {
+    this._renderTripInfo();
+    this._renderSort();
+    this._renderTripList();
     this._renderFilters();
     this._renderMenu();
   }
@@ -82,9 +92,40 @@ export default class Trip {
     renderElement(this._htmlElements.headerNavWrapper, this._menu.getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
   }
 
+  _resortHandler(sortName) {
+    this._removeList();
+    if (sortName === `date`) {
+      this._renderDateSort();
+    } else if (sortName === `time`) {
+      this._renderTimeSort();
+    } else if (sortName === `price`) {
+      this._renderPriceSort();
+    }
+    this._renderTripList();
+  }
+
+  _renderDateSort() {
+    this._boardPoints.sort(function (a, b) {
+      return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
+    });
+  }
+
+  _renderTimeSort() {
+    this._boardPoints.sort(function (a, b) {
+      return dayjs(a.dateStart).diff(dayjs(a.dateEnd), `minute`) - dayjs(b.dateStart).diff(dayjs(b.dateEnd), `minute`);
+    });
+  }
+
+  _renderPriceSort() {
+    this._boardPoints.sort((a, b) => a.cost < b.cost);
+  }
+
   _renderSort() {
+    this._sorts = new Sorts();
+    this._sorts.setResortHandler(this._resortHandler);
     renderElement(this._htmlElements.contentWrapper, this._sorts.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
   }
+
 
   _renderTripInfo() {
     renderElement(this._htmlElements.headerTripWrapper, this.tripInfo.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
