@@ -31,7 +31,6 @@ const createSorts = () => {
 export default class Sorts extends AbstractView {
   constructor() {
     super();
-    this.setResortHandler = this.setResortHandler.bind(this);
     this._resortHandler = this._resortHandler.bind(this);
   }
 

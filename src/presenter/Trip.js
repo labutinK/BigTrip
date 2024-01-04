@@ -110,6 +110,8 @@ export default class Trip {
       case SORT_TYPES.price:
         this._boardPoints.sort(sortCost);
         break;
+      default:
+        throw new Error(`Unknown sort type.`);
     }
   }
 

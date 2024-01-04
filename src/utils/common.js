@@ -41,24 +41,37 @@ export const updateItem = (items, update) => {
 };
 
 
-const getWeightForNullDate = (dateA, dateB) => {
-  if (dateA === null && dateB === null) {
+const getWeightForNullDate = (a, b) => {
+  if (a === null && b === null) {
     return 0;
   }
 
-  if (dateA === null) {
+  if (a === null) {
     return 1;
   }
 
-  if (dateB === null) {
+  if (b === null) {
     return -1;
   }
 
   return null;
 };
 
+const getWeghtForEmpty = (a, b)=> {
+  if (a !== null && b !== null) {
+    return 0;
+  }
+  if (a !== null) {
+    return -1;
+  }
+  if (b !== null) {
+    return 1;
+  }
+  return null;
+};
+
 export const sortDate = (a, b) => {
-  const weight = getWeightForNullDate(a, b);
+  const weight = getWeightForNullDate(a.dateStart, b.dateStart);
   if (weight !== null) {
     return weight;
   }
@@ -66,7 +79,9 @@ export const sortDate = (a, b) => {
 };
 
 export const sortDuration = (a, b) => {
-  const weight = getWeightForNullDate(a, b);
+  const weightA = getWeightForNullDate(a.dateStart, a.dateEnd);
+  const weightB = getWeightForNullDate(b.dateStart, b.dateEnd);
+  const weight = getWeghtForEmpty(weightA, weightB);
   if (weight !== null) {
     return weight;
   }
@@ -74,6 +89,10 @@ export const sortDuration = (a, b) => {
 };
 
 export const sortCost = (a, b) => {
+  const weight = getWeightForNullDate(a.cost, b.cost);
+  if (weight !== null) {
+    return weight;
+  }
   return a.cost < b.cost;
 };
 
