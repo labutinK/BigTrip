@@ -2,7 +2,7 @@ import {displayDate} from "../utils/date";
 import {pointTypes} from "../mock/consts";
 import {towns} from "../mock/consts";
 import {offers} from "../mock/consts";
-import AbstractView from "./AbstractView";
+import AbstractSmart from "./AbstractSmart";
 
 const createTripPointForm = (point) => {
 
@@ -149,16 +149,16 @@ const createTripPointForm = (point) => {
 };
 
 
-export default class TripPointEdit extends AbstractView {
-  constructor(point) {
+export default class TripPointEdit extends AbstractSmart {
+  constructor(data) {
     super();
-    this._point = point;
+    this._data = data;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._point);
+    this._callback.formSubmit(this._data);
   }
 
   setFormSubmitHandler(cb) {
@@ -166,8 +166,13 @@ export default class TripPointEdit extends AbstractView {
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 
+
+  restoreHandlers() {
+    console.log(`restoreHandlers`);
+  }
+
   getTemplate() {
-    return createTripPointForm(this._point);
+    return createTripPointForm(this._data);
   }
 
 }
