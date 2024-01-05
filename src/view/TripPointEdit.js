@@ -1,43 +1,43 @@
 import {displayDate} from "../utils/date";
 import {pointTypes} from "../mock/consts";
-import {towns} from "../mock/consts";
-import {offers} from "../mock/consts";
+import {towns, destinations, offers} from "../mock/consts";
 import AbstractSmart from "./AbstractSmart";
 
 const createTripPointForm = (point) => {
 
   const getDestinationInfo = () => {
     let destinationBlock = ``;
-    if (point.destination.description || point.destination.photos.length > 0) {
-      destinationBlock +=
-                `<section class="event__section  event__section--destination">
+    if (point.town && destinations.has(point.town)) {
+      const currentDestination = destinations.get(point.town);
+      if (currentDestination.description || currentDestination.photos.length > 0) {
+        destinationBlock +=
+            `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>`;
 
-      if (point.destination.description) {
-        destinationBlock += `<p class="event__destination-description">${point.destination.description}</p>`;
-      }
-      if (point.destination.photos.length > 0) {
-        destinationBlock += `<div class="event__photos-container">
+        if (currentDestination.description) {
+          destinationBlock += `<p class="event__destination-description">${currentDestination.description}</p>`;
+        }
+        if (currentDestination.photos.length > 0) {
+          destinationBlock += `<div class="event__photos-container">
                       <div class="event__photos-tape">`;
-        point.destination.photos.forEach((photo) => {
-          destinationBlock += `<img class="event__photo" src="${photo}" alt="Event photo">`;
-        });
+          currentDestination.photos.forEach((photo) => {
+            destinationBlock += `<img class="event__photo" src="${photo}" alt="Event photo">`;
+          });
 
-        destinationBlock += `</div></div>`;
+          destinationBlock += `</div></div>`;
+        }
+
+        destinationBlock += `</section>`;
       }
-
-      destinationBlock += `</section>`;
     }
-
     return destinationBlock;
-
   };
 
   const getOffers = () => {
     let offersListStr = `<div class="event__available-offers">`;
 
     const offerIsChecked = (offer) => {
-      if (point.offers.length > 0 && point.offers.forEach((pointOffer) => pointOffer === offer)) {
+      if (point.offers.length > 0 && point.offers.some((pointOffer) => pointOffer === offer)) {
         return `checked`;
       }
       return ``;
@@ -150,15 +150,31 @@ const createTripPointForm = (point) => {
 
 
 export default class TripPointEdit extends AbstractSmart {
-  constructor(data) {
+  constructor(point) {
     super();
-    this._data = data;
+    this._point = point;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._typeChangedHandler = this._typeChangedHandler.bind(this);
+    this._townChangeHandler = this._townChangeHandler.bind(this);
+    this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._typeChangedHandler);
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._townChangeHandler);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._data);
+    this._callback.formSubmit(this._point);
+  }
+
+  _townChangeHandler(evt) {
+    evt.preventDefault();
+    const town = evt.target.value;
+    this.updateData({town}, true);
+  }
+
+  _typeChangedHandler(evt) {
+    const val = evt.target.value;
+    const type = val[0].toUpperCase() + val.slice(1);
+    this.updateData({type}, true);
   }
 
   setFormSubmitHandler(cb) {
@@ -168,11 +184,14 @@ export default class TripPointEdit extends AbstractSmart {
 
 
   restoreHandlers() {
-    console.log(`restoreHandlers`);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._typeChangedHandler = this._typeChangedHandler.bind(this);
+    this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._typeChangedHandler);
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 
   getTemplate() {
-    return createTripPointForm(this._data);
+    return createTripPointForm(this._point);
   }
 
 }
