@@ -4,7 +4,6 @@ import {DOM_POSITIONS, renderElement} from "../utils/render";
 import {isEvtEscape} from "../utils/common";
 import {replace, remove} from "../utils/render";
 
-
 const Mode = {
   DEFAULT: `DEFAULT`,
   EDITING: `EDITING`,
@@ -23,7 +22,6 @@ export default class Point {
     this._changeData = changeData;
     this._closeOthers = closeOthers;
     this._mode = Mode.DEFAULT;
-
   }
 
   init(point) {
@@ -58,6 +56,7 @@ export default class Point {
 
   _closeForm(evt) {
     if (isEvtEscape(evt)) {
+      this._pointItemEdit.reset(this._point);
       this._displayPoint();
       document.removeEventListener(`keydown`, this._closeForm);
     }

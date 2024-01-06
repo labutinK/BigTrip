@@ -8,7 +8,6 @@ export const generatePoint = (newPoint = false) => {
   const type = pointTypes[getRandomInteger(0, pointTypes.length - 1)];
   const pointOffers = offers.get(type);
   const townInd = getRandomInteger(0, towns.length - 1);
-  const destination = destinations.get(towns[townInd]);
   return {
     id: nanoid(10),
     type,
@@ -17,12 +16,8 @@ export const generatePoint = (newPoint = false) => {
         return offer;
       }
       return null;
-    }),
+    }).map((offer) => offer.formName),
     town: newPoint ? `` : towns[townInd],
-    destination: {
-      description: newPoint ? `` : destination.description,
-      photos: newPoint ? `` : destination.photos,
-    },
     cost: newPoint ? `` : getRandomInteger(0, 149) * 5,
     dateStart: date,
     dateEnd: date.add(getRandomInteger(5, 10), `hour`).add(getRandomInteger(1, 6) * 10, `minute`),

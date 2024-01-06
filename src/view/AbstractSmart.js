@@ -4,6 +4,7 @@ import {replace} from "../utils/render";
 export default class AbstractSmart extends AbstractView {
   constructor() {
     super();
+    this._data = {};
   }
 
   restoreHandlers() {
@@ -11,18 +12,17 @@ export default class AbstractSmart extends AbstractView {
   }
 
   updateData(updated, updateElementFlag = false) {
-    this._point = Object.assign({}, this._point, updated);
+    this._data = Object.assign({}, this._data, updated);
     if (updateElementFlag) {
       this.updateElement();
     }
-    this.restoreHandlers();
   }
 
   updateElement() {
     const currentElement = this.getElement();
     this.removeElement();
     const newElement = this.getElement();
-    console.log(this._point);
     replace(newElement, currentElement);
+    this.restoreHandlers();
   }
 }

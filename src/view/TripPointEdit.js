@@ -2,6 +2,12 @@ import {displayDate} from "../utils/date";
 import {pointTypes} from "../mock/consts";
 import {towns, destinations, offers} from "../mock/consts";
 import AbstractSmart from "./AbstractSmart";
+import {nanoid} from "nanoid";
+
+const POINT_DATES = {
+  'event-start-time': `dateStart`,
+  'event-end-time': `dateEnd`
+};
 
 const createTripPointForm = (point) => {
 
@@ -37,7 +43,7 @@ const createTripPointForm = (point) => {
     let offersListStr = `<div class="event__available-offers">`;
 
     const offerIsChecked = (offer) => {
-      if (point.offers.length > 0 && point.offers.some((pointOffer) => pointOffer === offer)) {
+      if (point.offers.length > 0 && point.offers.some((pointOffer) => pointOffer === offer.formName)) {
         return `checked`;
       }
       return ``;
@@ -49,7 +55,7 @@ const createTripPointForm = (point) => {
         let idField = (Math.random() + 1).toString(36).substring(3) + `_` + ind;
         offersListStr +=
                     `<div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.formName}-${idField}" type="checkbox" name="event-offer-${offer.formName}" ${offerIsChecked(offer)}>
+                <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.formName}-${idField}" type="checkbox" name="${offer.formName}" ${offerIsChecked(offer)}>
                 <label class="event__offer-label" for="event-offer-${offer.formName}-${idField}">
                   <span class="event__offer-title">${offer.name}</span>
                   &plus;&euro;&nbsp;
@@ -94,6 +100,9 @@ const createTripPointForm = (point) => {
     return typesList;
   };
 
+  const dateId1 = nanoid(6);
+  const dateId2 = nanoid(6);
+
   return `      <li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -118,11 +127,11 @@ const createTripPointForm = (point) => {
                   </div>
 
                   <div class="event__field-group  event__field-group--time">
-                    <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${displayDate(point.dateStart, `DD/MM/YY HH:mm`)}">
+                    <label class="visually-hidden" for="event-start-time-${dateId1}">From</label>
+                    <input class="event__input  event__input--time" id="event-start-time-${dateId1}" type="text" name="event-start-time" value="${displayDate(point.dateStart, `DD/MM/YY HH:mm`)}">
                     &mdash;
-                    <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${displayDate(point.dateEnd, `DD/MM/YY HH:mm`)}">
+                    <label class="visually-hidden" for="event-end-time-${dateId2}">To</label>
+                    <input class="event__input  event__input--time" id="event-end-time-${dateId2}" type="text" name="event-end-time" value="${displayDate(point.dateEnd, `DD/MM/YY HH:mm`)}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -150,19 +159,41 @@ const createTripPointForm = (point) => {
 
 
 export default class TripPointEdit extends AbstractSmart {
-  constructor(point) {
+  constructor(point = {}) {
     super();
-    this._point = point;
+    this._data = point;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._typeChangedHandler = this._typeChangedHandler.bind(this);
     this._townChangeHandler = this._townChangeHandler.bind(this);
-    this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._typeChangedHandler);
-    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._townChangeHandler);
+    this._costChangeHandler = this._costChangeHandler.bind(this);
+    this._offerChangeHandler = this._offerChangeHandler.bind(this);
+    this._datesChangeHandler = this._datesChangeHandler.bind(this);
+    this.setInnerHandlers();
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._point);
+    this._callback.formSubmit(this._data);
+  }
+
+  _offerChangeHandler() {
+    let actualOffers = [...this._offerElements].filter((offer) => offer.checked).map((checkedOffer) => checkedOffer.name);
+    this.updateData({offers: actualOffers});
+  }
+
+  _costChangeHandler(evt) {
+    evt.preventDefault();
+    const cost = evt.target.value;
+    this.updateData({cost});
+  }
+
+  _datesChangeHandler(evt) {
+    const dateVal = evt.target.value;
+    const dateName = evt.target.name;
+    if (POINT_DATES[dateName]) {
+      let field = POINT_DATES[dateName];
+      this.updateData({[field]: dateVal}, true);
+    }
   }
 
   _townChangeHandler(evt) {
@@ -174,7 +205,7 @@ export default class TripPointEdit extends AbstractSmart {
   _typeChangedHandler(evt) {
     const val = evt.target.value;
     const type = val[0].toUpperCase() + val.slice(1);
-    this.updateData({type}, true);
+    this.updateData({type, offers: []}, true);
   }
 
   setFormSubmitHandler(cb) {
@@ -182,16 +213,35 @@ export default class TripPointEdit extends AbstractSmart {
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 
-
-  restoreHandlers() {
-    this._formSubmitHandler = this._formSubmitHandler.bind(this);
-    this._typeChangedHandler = this._typeChangedHandler.bind(this);
+  setInnerHandlers() {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._typeChangedHandler);
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, this._costChangeHandler);
+    this._offerElements = this.getElement().querySelectorAll(`.event__offer-checkbox`);
+    if (this._offerElements) {
+      [...this._offerElements].forEach((offerElement) => {
+        offerElement.addEventListener(`click`, this._offerChangeHandler);
+      });
+    }
+    this._dateElements = this.getElement().querySelectorAll(`.event__input--time`);
+    if (this._dateElements) {
+      [...this._dateElements].forEach((dateElement) => {
+        dateElement.addEventListener(`click`, this._datesChangeHandler);
+      });
+    }
+  }
+
+  reset(data) {
+    this.updateData(data, true);
+  }
+
+  restoreHandlers() {
+    this.setInnerHandlers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
   }
 
   getTemplate() {
-    return createTripPointForm(this._point);
+    return createTripPointForm(this._data);
   }
 
 }

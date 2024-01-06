@@ -38,7 +38,8 @@ export default class Trip {
 
   init(points) {
     this._boardPoints = points;
-    this._sortPoints(SORT_TYPES.date);
+    this._currentSortType = SORT_TYPES.date;
+    this._sortPoints(this._currentSortType);
     this._pointPresenter = {};
     this.tripInfo = new TripInfoView(this._boardPoints);
     this._renderBoard();
@@ -66,6 +67,8 @@ export default class Trip {
   _handleUpdateItem(updatedPoint) {
     this._boardPoints = updateItem(this._boardPoints, updatedPoint);
     this._pointPresenter[updatedPoint.id].init(updatedPoint);
+    this._sortPoints(this._currentSortType);
+    console.log(this._currentSortType);
   }
 
   _renderTripItem(pointData) {
@@ -100,6 +103,7 @@ export default class Trip {
   }
 
   _sortPoints(sortType) {
+    this._currentSortType = sortType;
     switch (sortType) {
       case SORT_TYPES.date:
         this._boardPoints.sort(sortDate);

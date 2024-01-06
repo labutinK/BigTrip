@@ -1,5 +1,6 @@
 import {displayDate, displayDateDiff} from "../utils/date";
 import AbstractView from "./AbstractView";
+import {offers} from "../mock/consts";
 
 const createTripPoint = (point) => {
 
@@ -7,15 +8,24 @@ const createTripPoint = (point) => {
 
   const getOffers = () => {
     let str = ``;
-    if (point.offers.length > 0) {
+    if (offers.has(point.type) && offers.get(point.type).length > 0) {
+      let offersAddedAlready = point.offers;
+      let offersForType = offers.get(point.type);
+      let actualOffers = offersForType.filter((offer) => {
+        for (let addedOffer of offersAddedAlready) {
+          if (addedOffer === offer.formName) {
+            return true;
+          }
+        }
+      });
       str += `<ul class="event__selected-offers">`;
-      for (let i = 0; i < point.offers.length; i++) {
+      for (let i = 0; i < actualOffers.length; i++) {
         str += `
             <li class="event__offer">
-                <span class="event__offer-title">${point.offers[i].name}</span>
+                <span class="event__offer-title">${actualOffers[i].name}</span>
                 <span class="event__offer-cost">
                     &plus;&euro;&nbsp;
-                    <span class="event__offer-price">${point.offers[i].cost}</span>
+                    <span class="event__offer-price">${actualOffers[i].cost}</span>
                 </span>
               </li>
             `;
@@ -82,6 +92,7 @@ export default class TripPoint extends AbstractView {
     evt.preventDefault();
     this._callback.editPointClick();
   }
+
   setEditOnHandler(cb) {
     this._callback.editPointClick = cb;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editPointHandler);
