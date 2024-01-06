@@ -67,8 +67,7 @@ export default class Trip {
   _handleUpdateItem(updatedPoint) {
     this._boardPoints = updateItem(this._boardPoints, updatedPoint);
     this._pointPresenter[updatedPoint.id].init(updatedPoint);
-    this._sortPoints(this._currentSortType);
-    console.log(this._currentSortType);
+    this._handleSortTypeChange(this._currentSortType);
   }
 
   _renderTripItem(pointData) {
