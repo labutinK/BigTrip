@@ -31,6 +31,7 @@ export default class Point {
     this._point = point;
     this._pointItem = new TripPoint(this._point);
     this._pointItemEdit = new TripPointEdit(this._point);
+
     this._pointItem.setEditOnHandler(this._displayForm);
     this._pointItemEdit.setFormSubmitHandler(this._submitForm);
     this._pointItem.setFavoriteHandler(this._favoriteHandler);
@@ -45,13 +46,14 @@ export default class Point {
     if (this._mode === Mode.EDITING) {
       replace(this._pointItemEdit, prevPointEditItem);
     }
+
     remove(prevPointItem);
-    remove(prevPointEditItem);
+    prevPointEditItem.smartRemove();
   }
 
   destroy() {
     remove(this._pointItem);
-    remove(this._pointItemEdit);
+    this._pointItemEdit.smartRemove();
   }
 
   _closeForm(evt) {

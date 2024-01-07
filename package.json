@@ -21,8 +21,10 @@
     "node": "12"
   },
   "dependencies": {
+    "css-loader": "5.0.1",
     "dayjs": "^1.11.10",
     "flatpickr": "^4.6.13",
-    "nanoid": "^5.0.4"
+    "nanoid": "^5.0.4",
+    "style-loader": "^2.0.0"
   }
 }

@@ -3,11 +3,17 @@ import duration from 'dayjs/plugin/duration';
 
 dayjs.extend(duration);
 
-export const displayDate = function (date, format = `MMMM D`) {
+export const getDateInFormat = function (date, format = `MMMM D`) {
+  if (date === null) {
+    return ``;
+  }
   return dayjs(date).format(format);
 };
 
-export const displayDateDiff = function (date1, date2) {
+export const getDateDiff = function (date1, date2) {
+  if (date1 === null || date2 === null) {
+    return null;
+  }
   const diff = date2.diff(date1);
   const dur = dayjs.duration(diff);
   const days = dur.days();

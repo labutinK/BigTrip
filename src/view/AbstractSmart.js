@@ -25,4 +25,5 @@ export default class AbstractSmart extends AbstractView {
     replace(newElement, currentElement);
     this.restoreHandlers();
   }
+
 }

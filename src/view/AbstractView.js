@@ -1,4 +1,4 @@
-import {createElement} from "../utils/render";
+import {createElement} from "../utils/common";
 
 export default class AbstractView {
   constructor() {
@@ -22,5 +22,9 @@ export default class AbstractView {
 
   removeElement() {
     this._element = null;
+  }
+
+  smartRemove() {
+    this.removeElement();
   }
 }

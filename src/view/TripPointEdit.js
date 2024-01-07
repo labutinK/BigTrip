@@ -1,8 +1,15 @@
-import {displayDate} from "../utils/date";
 import {pointTypes} from "../mock/consts";
 import {towns, destinations, offers} from "../mock/consts";
 import AbstractSmart from "./AbstractSmart";
+import {getDateInFormat} from "../utils/date";
 import {nanoid} from "nanoid";
+import flatpickr from "flatpickr";
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+import dayjs from "dayjs";
+import CustomParseFormat from 'dayjs/plugin/customParseFormat';
+import {remove} from "../utils/render";
+
+dayjs.extend(CustomParseFormat);
 
 const POINT_DATES = {
   'event-start-time': `dateStart`,
@@ -10,6 +17,8 @@ const POINT_DATES = {
 };
 
 const createTripPointForm = (point) => {
+
+  const unicFormId = nanoid(6);
 
   const getDestinationInfo = () => {
     let destinationBlock = ``;
@@ -91,17 +100,14 @@ const createTripPointForm = (point) => {
 
     pointTypes.forEach((pointType) => {
       typesList += `<div class="event__type-item">
-            <input ${checkedIfCurrent(pointType)} id="event-type-${pointType.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType.toLowerCase()}">
-                <label class="event__type-label  event__type-label--${pointType.toLowerCase()}" for="event-type-${pointType.toLowerCase()}-1">${pointType}</label>
+            <input ${checkedIfCurrent(pointType)} id="event-type-${pointType.toLowerCase()}-${unicFormId}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType.toLowerCase()}">
+                <label class="event__type-label  event__type-label--${pointType.toLowerCase()}" for="event-type-${pointType.toLowerCase()}-${unicFormId}">${pointType}</label>
         </div>`;
     });
 
     typesList += `</fieldset>`;
     return typesList;
   };
-
-  const dateId1 = nanoid(6);
-  const dateId2 = nanoid(6);
 
   return `      <li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -125,13 +131,12 @@ const createTripPointForm = (point) => {
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.town}" list="destination-list-1">
                        ${getTowns()}
                   </div>
-
-                  <div class="event__field-group  event__field-group--time">
-                    <label class="visually-hidden" for="event-start-time-${dateId1}">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-${dateId1}" type="text" name="event-start-time" value="${displayDate(point.dateStart, `DD/MM/YY HH:mm`)}">
+                     <div class="event__field-group  event__field-group--time">
+                    <label class="visually-hidden" for="event-start-time-1">From</label>
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${getDateInFormat(point.dateStart, `DD/MM/YY HH:mm`)}">
                     &mdash;
-                    <label class="visually-hidden" for="event-end-time-${dateId2}">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-${dateId2}" type="text" name="event-end-time" value="${displayDate(point.dateEnd, `DD/MM/YY HH:mm`)}">
+                    <label class="visually-hidden" for="event-end-time-1">To</label>
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${getDateInFormat(point.dateEnd, `DD/MM/YY HH:mm`)}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -161,24 +166,41 @@ const createTripPointForm = (point) => {
 export default class TripPointEdit extends AbstractSmart {
   constructor(point = {}) {
     super();
-    this._data = point;
+    this._data = TripPointEdit.parsePointToData(point);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._typeChangedHandler = this._typeChangedHandler.bind(this);
     this._townChangeHandler = this._townChangeHandler.bind(this);
     this._costChangeHandler = this._costChangeHandler.bind(this);
     this._offerChangeHandler = this._offerChangeHandler.bind(this);
     this._datesChangeHandler = this._datesChangeHandler.bind(this);
-    this.setInnerHandlers();
+    this._setInnerHandlers();
+  }
+
+  static parseDataToPoint(data) {
+    return Object.assign(
+        {},
+        data,
+        {}
+    );
+  }
+
+  static parsePointToData(point) {
+    return Object.assign(
+        {},
+        point,
+        {}
+    );
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._data);
+    this._destroyCalendar();
+    this._callback.formSubmit(TripPointEdit.parseDataToPoint(this._data));
   }
 
   _offerChangeHandler() {
     let actualOffers = [...this._offerElements].filter((offer) => offer.checked).map((checkedOffer) => checkedOffer.name);
-    this.updateData({offers: actualOffers});
+    this.updateData({offers: actualOffers}, true);
   }
 
   _costChangeHandler(evt) {
@@ -190,9 +212,12 @@ export default class TripPointEdit extends AbstractSmart {
   _datesChangeHandler(evt) {
     const dateVal = evt.target.value;
     const dateName = evt.target.name;
+    const format = `DD/MM/YY HH:mm`;
+
     if (POINT_DATES[dateName]) {
       let field = POINT_DATES[dateName];
-      this.updateData({[field]: dateVal}, true);
+      const parsedDate = dayjs(dateVal, format, true); // Третий параметр 'true' обеспечивает строгий разбор
+      this.updateData({[field]: parsedDate});
     }
   }
 
@@ -213,35 +238,90 @@ export default class TripPointEdit extends AbstractSmart {
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 
-  setInnerHandlers() {
+  _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._typeChangedHandler);
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._townChangeHandler);
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
     this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, this._costChangeHandler);
     this._offerElements = this.getElement().querySelectorAll(`.event__offer-checkbox`);
+    this._setCalendar();
     if (this._offerElements) {
       [...this._offerElements].forEach((offerElement) => {
         offerElement.addEventListener(`click`, this._offerChangeHandler);
       });
     }
-    this._dateElements = this.getElement().querySelectorAll(`.event__input--time`);
-    if (this._dateElements) {
-      [...this._dateElements].forEach((dateElement) => {
-        dateElement.addEventListener(`click`, this._datesChangeHandler);
-      });
-    }
+
   }
+
+  _destroyCalendar() {
+    this._dateToPicker.destroy();
+    this._dateFromPicker.destroy();
+    this._datePickerInstalled = false;
+  }
+
+
+  _setCalendar() {
+    if (this._datePickerInstalled) {
+      this._destroyCalendar();
+    }
+    this._datePickerInstalled = true;
+    this._dateFromElement = this.getElement().querySelector(`.event__input--time[name="event-start-time"]`);
+    this._dateToElement = this.getElement().querySelector(`.event__input--time[name="event-end-time"]`);
+
+    const dateFormat = `d/m/y H:i`;
+    const dayjsFormat = `DD/MM/YY HH:mm`;
+
+    let dateStartStr = ``;
+    if (this._data.dateStart) {
+      dateStartStr = getDateInFormat(this._data.dateStart, dayjsFormat);
+    }
+    let dateEndStr = ``;
+    if (this._data.dateEnd) {
+      dateEndStr = getDateInFormat(this._data.dateEnd, dayjsFormat);
+    }
+
+    this._dateFromPicker = flatpickr(this._dateFromElement, {
+      enableTime: true,
+      dateFormat,
+      maxDate: dateEndStr,
+      onChange: (selectedDates) => {
+        if (this._dateToPicker && selectedDates[0]) {
+          this._dateToPicker.set(`minDate`, selectedDates[0]);
+        }
+      }
+    });
+
+    this._dateToPicker = flatpickr(this._dateToElement, {
+      enableTime: true,
+      dateFormat,
+      minDate: dateStartStr,
+      onChange: (selectedDates) => {
+        if (this._dateFromPicker && selectedDates[0]) {
+          this._dateFromPicker.set(`maxDate`, selectedDates[0]);
+        }
+      }
+    });
+
+    this._dateFromElement.addEventListener(`change`, this._datesChangeHandler);
+    this._dateToElement.addEventListener(`change`, this._datesChangeHandler);
+  }
+
 
   reset(data) {
     this.updateData(data, true);
   }
 
+  smartRemove() {
+    this._destroyCalendar();
+    remove(this);
+  }
+
   restoreHandlers() {
-    this.setInnerHandlers();
+    this._setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
   }
 
   getTemplate() {
     return createTripPointForm(this._data);
   }
-
 }

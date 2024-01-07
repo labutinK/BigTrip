@@ -1,7 +1,7 @@
 import {generatePoint} from "./mock/point";
 import Trip from "./presenter/Trip";
 
-const POINTS_COUNT = 15;
+const POINTS_COUNT = 2;
 
 let points = new Array(POINTS_COUNT).fill().map(() => generatePoint());
 

@@ -1,4 +1,4 @@
-import {displayDate, isSameDate} from "../utils/date";
+import {getDateInFormat, isSameDate} from "../utils/date";
 import AbstractView from "./AbstractView";
 
 const createTripInfoTemplate = (points) => {
@@ -23,16 +23,16 @@ const createTripInfoTemplate = (points) => {
 
   let dates = ``;
   if (points[0].dateStart) {
-    let startMonthYear = displayDate(points[0].dateStart, `MMM YY`);
+    let startMonthYear = getDateInFormat(points[0].dateStart, `MMM YY`);
     let lastIndex = points.length - 1;
-    dates += displayDate(points[0].dateStart, `MMM DD`).toUpperCase();
+    dates += getDateInFormat(points[0].dateStart, `MMM DD`).toUpperCase();
     if (!isSameDate(points[0].dateStart, points[lastIndex].dateEnd)) {
       dates += ` - `;
       let dateEndFormat = `DD`;
-      if (startMonthYear !== displayDate(points[lastIndex].dateEnd, `MMM YY`)) {
+      if (startMonthYear !== getDateInFormat(points[lastIndex].dateEnd, `MMM YY`)) {
         dateEndFormat = `MMM ` + dateEndFormat;
       }
-      dates += displayDate(points[lastIndex].dateEnd, dateEndFormat).toUpperCase();
+      dates += getDateInFormat(points[lastIndex].dateEnd, dateEndFormat).toUpperCase();
     }
   }
 

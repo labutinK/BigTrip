@@ -1,6 +1,7 @@
-import {displayDate, displayDateDiff} from "../utils/date";
+import {getDateInFormat, getDateDiff} from "../utils/date";
 import AbstractView from "./AbstractView";
 import {offers} from "../mock/consts";
+import {createElement} from "../utils/common";
 
 const createTripPoint = (point) => {
 
@@ -17,6 +18,7 @@ const createTripPoint = (point) => {
             return true;
           }
         }
+        return false;
       });
       str += `<ul class="event__selected-offers">`;
       for (let i = 0; i < actualOffers.length; i++) {
@@ -35,21 +37,47 @@ const createTripPoint = (point) => {
     return str;
   };
 
+  const getDuration = () => {
+    const result = getDateDiff(point.dateStart, point.dateEnd, `d h m`);
+    if (!result) {
+      return ``;
+    }
+    const durationBox = createElement(`<p class="event__duration"></p>`);
+    return (durationBox.innerText = result);
+  };
+  const getDatesBlock = () => {
+    const dateFrom = getDateInFormat(point.dateStart, `HH:mm`);
+    const dateTo = getDateInFormat(point.dateEnd, `HH:mm`);
+    let dateBlockWrapper = `<p class="event__time">`;
+    if (dateFrom) {
+      dateBlockWrapper += `
+      <time class="event__start-time">${dateFrom}</time>`;
+    }
+    if (dateTo) {
+      let dateToBlockWrapper = `
+          <time class="event__start-time">${dateTo}</time>
+      `;
+      if (dateFrom) {
+        dateToBlockWrapper = `&mdash;` + dateToBlockWrapper;
+      }
+      dateBlockWrapper += dateToBlockWrapper;
+    }
+    dateBlockWrapper += `</p>`;
+    return dateBlockWrapper;
+  };
+
+
   return `
     <li class="trip-events__item">
           <div class="event">
-            <time class="event__date" datetime="2019-03-18">${displayDate(point.dateStart, `MMM D`)}</time>
+            <time class="event__date" datetime="2019-03-18">${getDateInFormat(point.dateStart, `MMM D`)}</time>
             <div class="event__type">
               <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type.toLowerCase()}.png" alt="Event type icon">
             </div>
             <h3 class="event__title">${point.type + ` ` + point.town}</h3>
             <div class="event__schedule">
-              <p class="event__time">
-                <time class="event__start-time" datetime="2019-03-18T10:30">${displayDate(point.dateStart, `HH-mm`)}</time>
-                &mdash;
-                <time class="event__end-time" datetime="2019-03-18T11:00">${displayDate(point.dateEnd, `HH-mm`)}</time>
-              </p>
-              <p class="event__duration">${displayDateDiff(point.dateStart, point.dateEnd, `d h m`)}</p>
+              ${getDatesBlock()}
+              ${getDuration()}
             </div>
             <p class="event__price">
               &euro;&nbsp;<span class="event__price-value">${point.cost}</span>
