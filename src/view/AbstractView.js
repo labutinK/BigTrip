@@ -24,7 +24,4 @@ export default class AbstractView {
     this._element = null;
   }
 
-  smartRemove() {
-    this.removeElement();
-  }
 }

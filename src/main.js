@@ -1,11 +1,15 @@
 import {generatePoint} from "./mock/point";
 import Trip from "./presenter/Trip";
+import Points from "./model/Points";
+
+let htmlWrapper = document.querySelector(`.page-body`);
+
 
 const POINTS_COUNT = 2;
 
 let points = new Array(POINTS_COUNT).fill().map(() => generatePoint());
 
-let htmlWrapper = document.querySelector(`.page-body`);
-let TripPresenter = new Trip(htmlWrapper);
+let PointsModel = new Points();
+PointsModel.setPoints(points);
 
-TripPresenter.init(points);
+let TripPresenter = new Trip(htmlWrapper, PointsModel);

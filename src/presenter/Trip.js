@@ -16,7 +16,7 @@ dayjs.extend(duration);
 
 
 export default class Trip {
-  constructor(wrapper) {
+  constructor(wrapper, points) {
     this._htmlWrapper = wrapper;
     this._tripList = new TripList();
     this._emptyList = new EmptyList();
@@ -34,18 +34,30 @@ export default class Trip {
     this._handleUpdateItem = this._handleUpdateItem.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-  }
 
-  init(points) {
-    this._boardPoints = points;
+    this._points = points;
     this._currentSortType = SORT_TYPES.date;
-    this._sortPoints(this._currentSortType);
+    // this._sortPoints(this._currentSortType);
     this._pointPresenter = {};
-    this.tripInfo = new TripInfoView(this._boardPoints);
+    // this.tripInfo = new TripInfoView(this._boardPoints);
     this._renderBoard();
   }
 
+
   _renderTripList() {
+
+    switch (this._currentSortType) {
+      case SORT_TYPES.date:
+        this._boardPoints = this._points.getPoints().sort(sortDate);
+        break;
+      case SORT_TYPES.time:
+        this._boardPoints = this._points.getPoints().sort(sortDuration);
+        break;
+      case SORT_TYPES.price:
+        this._boardPoints = this._points.getPoints().sort(sortCost);
+        break;
+    }
+
     if (this._boardPoints.length > 0) {
       renderElement(this._htmlElements.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
       this._boardPoints.forEach((point) => {
@@ -57,11 +69,11 @@ export default class Trip {
   }
 
   _renderBoard() {
-    this._renderTripInfo();
-    this._renderSort();
+    // this._renderTripInfo();
+    // this._renderSort();
     this._renderTripList();
-    this._renderFilters();
-    this._renderMenu();
+    // this._renderFilters();
+    // this._renderMenu();
   }
 
   _handleUpdateItem(updatedPoint) {
