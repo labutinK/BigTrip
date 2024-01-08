@@ -3,3 +3,15 @@ export const SORT_TYPES = {
   time: `sort-time`,
   price: `sort-price`,
 };
+
+export const UserActions = {
+  UPDATE: `UPDATE`,
+  CREATE: `CREATE`,
+  DELETE: `DELETE`
+};
+
+export const UpdateType = {
+  PATCH: `PATCH`,
+  MINOR: `MINOR`,
+  MAJOR: `MAJOR`,
+};

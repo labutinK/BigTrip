@@ -10,7 +10,7 @@ import Point from "./Point";
 import {sortDuration, sortCost, sortDate, updateItem} from "../utils/common";
 import dayjs from "dayjs";
 import duration from 'dayjs/plugin/duration';
-import {SORT_TYPES} from "../const";
+import {SORT_TYPES, UpdateType, UserActions} from "../const";
 
 dayjs.extend(duration);
 
@@ -31,11 +31,14 @@ export default class Trip {
       headerFilterWrapper: this._htmlWrapper.querySelector(`.trip-controls__filters`),
       contentWrapper: this._htmlWrapper.querySelector(`.trip-events`),
     };
-    this._handleUpdateItem = this._handleUpdateItem.bind(this);
+    this._handleUpdateView = this._handleUpdateView.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._handleUpdateModel = this._handleUpdateModel.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
     this._points = points;
+
+    this._points.addObserver(this._handleUpdateModel);
     this._currentSortType = SORT_TYPES.date;
     // this._sortPoints(this._currentSortType);
     this._pointPresenter = {};
@@ -76,14 +79,24 @@ export default class Trip {
     // this._renderMenu();
   }
 
-  _handleUpdateItem(updatedPoint) {
-    this._boardPoints = updateItem(this._boardPoints, updatedPoint);
-    // this._pointPresenter[updatedPoint.id].init(updatedPoint);
-    this._handleSortTypeChange(this._currentSortType);
+  _handleUpdateView(updated) {
+    this._points.updatePoint(UpdateType.MINOR, updated);
+  }
+
+  _handleUpdateModel(type, item) {
+    switch (type) {
+      case UpdateType.PATCH:
+        this._pointPresenter[item.id].init(item);
+        break;
+      case UpdateType.MINOR:
+        this._removeList();
+        this._renderTripList();
+        break;
+    }
   }
 
   _renderTripItem(pointData) {
-    let pointPresenter = new Point(this._tripList, this._handleUpdateItem, this._handleModeChange);
+    let pointPresenter = new Point(this._tripList, this._handleUpdateView, this._handleModeChange);
     this._pointPresenter[pointData.id] = pointPresenter;
     pointPresenter.init(pointData);
   }
@@ -108,7 +121,8 @@ export default class Trip {
   }
 
   _handleSortTypeChange(sortType) {
-    this._sortPoints(sortType);
+    // this._sortPoints(sortType);
+    this._currentSortType = sortType;
     this._removeList();
     this._renderTripList();
   }

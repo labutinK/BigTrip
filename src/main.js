@@ -5,7 +5,7 @@ import Points from "./model/Points";
 let htmlWrapper = document.querySelector(`.page-body`);
 
 
-const POINTS_COUNT = 2;
+const POINTS_COUNT = 5;
 
 let points = new Array(POINTS_COUNT).fill().map(() => generatePoint());
 
