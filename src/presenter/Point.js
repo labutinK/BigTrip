@@ -3,6 +3,7 @@ import TripPointEdit from "../view/TripPointEdit";
 import {DOM_POSITIONS, renderElement} from "../utils/render";
 import {isEvtEscape} from "../utils/common";
 import {replace, remove} from "../utils/render";
+import {UserActions} from "../const";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -19,6 +20,7 @@ export default class Point {
     this._displayPoint = this._displayPoint.bind(this);
     this._favoriteHandler = this._favoriteHandler.bind(this);
     this._submitForm = this._submitForm.bind(this);
+    this._deletePoint = this._deletePoint.bind(this);
     this._changeData = changeData;
     this._closeOthers = closeOthers;
     this._mode = Mode.DEFAULT;
@@ -34,6 +36,7 @@ export default class Point {
 
     this._pointItem.setEditOnHandler(this._displayForm);
     this._pointItemEdit.setFormSubmitHandler(this._submitForm);
+    this._pointItemEdit.setDeleteHandler(this._deletePoint);
     this._pointItem.setFavoriteHandler(this._favoriteHandler);
     if (prevPointItem === null || prevPointEditItem === null) {
       renderElement(this._listWrapper.getElement(), this._pointItem.getElement(), DOM_POSITIONS[`BEFOREEND`]);
@@ -73,12 +76,13 @@ export default class Point {
 
   _favoriteHandler() {
     return this._changeData(
+        UserActions.UPDATE,
         Object.assign({}, this._point, {'isFavorite': !this._point.isFavorite})
     );
   }
 
   _submitForm(point) {
-    this._changeData(point);
+    this._changeData(UserActions.UPDATE, point);
     this._displayPoint();
   }
 
@@ -92,5 +96,10 @@ export default class Point {
     replace(this._pointItem.getElement(), this._pointItemEdit.getElement());
     document.removeEventListener(`keydown`, this._closeForm);
     this._mode = Mode.DEFAULT;
+  }
+
+
+  _deletePoint(point) {
+    this._changeData(UserActions.DELETE, point);
   }
 }

@@ -173,6 +173,7 @@ export default class TripPointEdit extends AbstractSmart {
     this._costChangeHandler = this._costChangeHandler.bind(this);
     this._offerChangeHandler = this._offerChangeHandler.bind(this);
     this._datesChangeHandler = this._datesChangeHandler.bind(this);
+    this._deleteHandler = this._deleteHandler.bind(this);
     this._setInnerHandlers();
   }
 
@@ -323,5 +324,15 @@ export default class TripPointEdit extends AbstractSmart {
 
   getTemplate() {
     return createTripPointForm(this._data);
+  }
+
+  setDeleteHandler(cb) {
+    this._callback.delete = cb;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteHandler);
+  }
+
+  _deleteHandler(evt) {
+    evt.preventDefault();
+    this._callback.delete(TripPointEdit.parseDataToPoint(this._data));
   }
 }

@@ -16,6 +16,7 @@ import Filter from "../model/Filter";
 import {filtersUtils} from "../utils/filter";
 import TripInfo from "../view/TripInfo";
 
+
 dayjs.extend(duration);
 
 
@@ -34,7 +35,7 @@ export default class Trip {
       headerNavWrapper: this._htmlWrapper.querySelector(`.trip-controls__navigation`),
       contentWrapper: this._htmlWrapper.querySelector(`.trip-events`),
     };
-    this._handleUpdateView = this._handleUpdateView.bind(this);
+    this._handleChangeView = this._handleChangeView.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleUpdateModel = this._handleUpdateModel.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
@@ -79,13 +80,19 @@ export default class Trip {
     } else {
       this._renderEmptyList();
     }
-
-
     // this._renderMenu();
   }
 
-  _handleUpdateView(updated) {
-    this._points.updatePoint(UpdateType.MINOR, updated);
+
+  _handleChangeView(action, element) {
+    switch (action) {
+      case UserActions.UPDATE:
+        this._points.updatePoint(UpdateType.MAJOR, element);
+        break;
+      case UserActions.DELETE:
+        this._points.deletePoint(UpdateType.MAJOR, element);
+        break;
+    }
   }
 
   _handleUpdateModel(type, item = {}) {
@@ -100,14 +107,16 @@ export default class Trip {
       case UpdateType.MAJOR:
         this._clearBoard({resetSortType: true, newTripInfo: true});
         this._renderBoard();
-        this._tripInfo = new TripInfo(this._boardPoints);
-        this._renderTripInfo();
+        if (this._boardPoints.length > 0) {
+          this._tripInfo = new TripInfo(this._boardPoints);
+          this._renderTripInfo();
+        }
         break;
     }
   }
 
   _renderTripItem(pointData) {
-    let pointPresenter = new Point(this._tripList, this._handleUpdateView, this._handleModeChange);
+    let pointPresenter = new Point(this._tripList, this._handleChangeView, this._handleModeChange);
     this._pointPresenter[pointData.id] = pointPresenter;
     pointPresenter.init(pointData);
   }
