@@ -1,11 +1,14 @@
 import AbstractView from "./AbstractView";
 import {SORT_TYPES} from "../const";
 
-const createSorts = () => {
+const createSorts = (currentSort) => {
+  const isChecked = (sort) => {
+    return sort === currentSort ? `checked` : ``;
+  };
   return `
   <form class="trip-events__trip-sort trip-sort" action="#" method="get">
         <div class="trip-sort__item  trip-sort__item--day">
-          <input id="sort-day" class="trip-sort__input  visually-hidden" data-sort-type="${SORT_TYPES.date}" type="radio" name="trip-sort" value="sort-day" checked>
+          <input id="sort-day" class="trip-sort__input  visually-hidden" data-sort-type="${SORT_TYPES.date}" type="radio" name="trip-sort" value="sort-day" ${isChecked(SORT_TYPES.date)}>
           <label class="trip-sort__btn" for="sort-day">Day</label>
         </div>
         <div class="trip-sort__item  trip-sort__item--event">
@@ -13,11 +16,11 @@ const createSorts = () => {
           <label class="trip-sort__btn" for="sort-event">Event</label>
         </div>
         <div class="trip-sort__item  trip-sort__item--time">
-          <input id="sort-time" class="trip-sort__input  visually-hidden" data-sort-type="${SORT_TYPES.time}"  type="radio" name="trip-sort" value="sort-time">
+          <input id="sort-time" class="trip-sort__input  visually-hidden" data-sort-type="${SORT_TYPES.time}"  type="radio" name="trip-sort" value="sort-time" ${isChecked(SORT_TYPES.time)}>
           <label class="trip-sort__btn" for="sort-time">Time</label>
         </div>
         <div class="trip-sort__item  trip-sort__item--price">
-          <input id="sort-price" class="trip-sort__input  visually-hidden"  data-sort-type="${SORT_TYPES.price}" type="radio" name="trip-sort" value="sort-price">
+          <input id="sort-price" class="trip-sort__input  visually-hidden"  data-sort-type="${SORT_TYPES.price}" type="radio" name="trip-sort" value="sort-price" ${isChecked(SORT_TYPES.price)}>
           <label class="trip-sort__btn" for="sort-price">Price</label>
         </div>
         <div class="trip-sort__item  trip-sort__item--offer">
@@ -29,23 +32,24 @@ const createSorts = () => {
 };
 
 export default class Sorts extends AbstractView {
-  constructor() {
+  constructor(currentSort) {
     super();
-    this._resortHandler = this._resortHandler.bind(this);
+    this._currentSort = currentSort;
+    this._newSortHandler = this._newSortHandler.bind(this);
   }
 
-  _resortHandler(evt) {
+  _newSortHandler(evt) {
     evt.preventDefault();
     const chosenSort = evt.target.getAttribute(`data-sort-type`);
-    this._callback.resort(chosenSort);
+    this._callback.newSort(chosenSort);
   }
 
   setResortHandler(cb) {
-    this._callback.resort = cb;
-    this.getElement().querySelector(`.trip-sort__item`).parentNode.addEventListener(`change`, this._resortHandler);
+    this._callback.newSort = cb;
+    this.getElement().querySelector(`.trip-sort__item`).parentNode.addEventListener(`change`, this._newSortHandler);
   }
 
   getTemplate() {
-    return createSorts();
+    return createSorts(this._currentSort);
   }
 }

@@ -93,7 +93,7 @@ export const sortCost = (a, b) => {
   if (weight !== null) {
     return weight;
   }
-  return a.cost < b.cost;
+  return parseInt(a.cost, 10) < parseInt(b.cost, 10);
 };
 
 export const createElement = (template) => {

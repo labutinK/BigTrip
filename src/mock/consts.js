@@ -301,28 +301,6 @@ export const offers = new Map([
 ]);
 
 
-export const filters = [
-  {
-    label: `Everything`,
-    name: `everything`,
-    value: `everything`,
-    checked: true,
-  },
-  {
-    label: `Future`,
-    name: `future`,
-    value: `future`,
-    checked: false
-  },
-  {
-    label: `Past`,
-    name: `past`,
-    value: `past`,
-    checked: false
-  }
-];
-
-
 export const menuItems = [
   {
     label: `Table`,

@@ -1,16 +1,19 @@
 import {getRandomInteger} from "../utils/common";
 import AbstractView from "./AbstractView";
-const createFilters = (filters) => {
-  const getFilters = () => {
-    return filters.reduce((sum, cur) => {
-      let checked = cur.checked ? `checked` : ``;
-      let id = cur.name.toLowerCase() + `_` + getRandomInteger(1000, 10000);
+import {UpdateType} from "../const";
 
-      return sum + `<div class="trip-filters__filter">
-      <input id="filter-${id}" class="trip-filters__filter-input visually-hidden" type="radio" name="trip-filter" value="${cur.value}" ${checked}>
-      <label class="trip-filters__filter-label" for="filter-${id}">${cur.label}</label>
-    </div>`;
-    }, ``);
+const createFilters = (filters, activeFilter) => {
+  const getFilters = () => {
+    let sum = ``;
+    for (let key in filters) {
+      sum += `
+        <div class="trip-filters__filter">
+          <input ${filters[key] === activeFilter ? `checked` : ``} id="filter-${filters[key]}" class="trip-filters__filter-input visually-hidden" type="radio" name="trip-filter" value="${filters[key]}">
+          <label class="trip-filters__filter-label" for="filter-${filters[key]}">${key}</label>
+        </div>
+    `;
+    }
+    return sum;
   };
 
   return `
@@ -23,13 +26,28 @@ const createFilters = (filters) => {
 
 
 export default class Filters extends AbstractView {
-  constructor(points) {
+  constructor(filters, activeFilter) {
     super();
-    this._filters = points;
+    this._filters = filters;
+    this._activeFilter = activeFilter;
+    this._filterHandler = this._filterHandler.bind(this);
   }
 
   getTemplate() {
-    return createFilters(this._filters);
+    return createFilters(this._filters, this._activeFilter);
+  }
+
+  setFilterHandler(cb) {
+    this._callback.filterChange = cb;
+    const filterInputs = document.querySelectorAll(`.trip-filters__filter-input`);
+    Array.from(filterInputs).forEach((filterInput) => {
+      filterInput.addEventListener(`click`, this._filterHandler);
+    });
+  }
+
+  _filterHandler(evt) {
+    evt.preventDefault();
+    this._callback.filterChange(UpdateType.MAJOR, evt.target.value);
   }
 }
 

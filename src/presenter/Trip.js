@@ -5,30 +5,33 @@ import TripInfoView from "../view/TripInfo";
 import EmptyList from "../view/EmptyList";
 import {filters, menuItems} from "../mock/consts";
 import Menu from "../view/Menu";
-import {DOM_POSITIONS, renderElement} from "../utils/render";
+import {DOM_POSITIONS, renderElement, replace} from "../utils/render";
 import Point from "./Point";
 import {sortDuration, sortCost, sortDate, updateItem} from "../utils/common";
 import dayjs from "dayjs";
 import duration from 'dayjs/plugin/duration';
 import {SORT_TYPES, UpdateType, UserActions} from "../const";
+import {remove} from "../utils/render";
+import Filter from "../model/Filter";
+import {filtersUtils} from "../utils/filter";
+import TripInfo from "../view/TripInfo";
 
 dayjs.extend(duration);
 
 
 export default class Trip {
-  constructor(wrapper, points) {
+  constructor(wrapper, points, filtersModel) {
     this._htmlWrapper = wrapper;
     this._tripList = new TripList();
     this._emptyList = new EmptyList();
-    this._filters = new FiltersView(filters);
     this._menu = new Menu(menuItems);
+    this._filtersModel = filtersModel;
 
     this._htmlElements = {
       siteBody: this._htmlWrapper.querySelector(`.page-body`),
       siteHeader: this._htmlWrapper.querySelector(`.page-header`),
       headerTripWrapper: this._htmlWrapper.querySelector(`.trip-main`),
       headerNavWrapper: this._htmlWrapper.querySelector(`.trip-controls__navigation`),
-      headerFilterWrapper: this._htmlWrapper.querySelector(`.trip-controls__filters`),
       contentWrapper: this._htmlWrapper.querySelector(`.trip-events`),
     };
     this._handleUpdateView = this._handleUpdateView.bind(this);
@@ -39,43 +42,45 @@ export default class Trip {
     this._points = points;
 
     this._points.addObserver(this._handleUpdateModel);
+    this._filtersModel.addObserver(this._handleUpdateModel);
     this._currentSortType = SORT_TYPES.date;
-    // this._sortPoints(this._currentSortType);
     this._pointPresenter = {};
-    // this.tripInfo = new TripInfoView(this._boardPoints);
+    this._tripInfo = null;
     this._renderBoard();
   }
 
 
   _renderTripList() {
-
-    switch (this._currentSortType) {
-      case SORT_TYPES.date:
-        this._boardPoints = this._points.getPoints().sort(sortDate);
-        break;
-      case SORT_TYPES.time:
-        this._boardPoints = this._points.getPoints().sort(sortDuration);
-        break;
-      case SORT_TYPES.price:
-        this._boardPoints = this._points.getPoints().sort(sortCost);
-        break;
-    }
-
-    if (this._boardPoints.length > 0) {
-      renderElement(this._htmlElements.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
-      this._boardPoints.forEach((point) => {
-        this._renderTripItem(point);
-      });
-    } else {
-      this._renderEmptyList();
-    }
+    renderElement(this._htmlElements.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+    this._boardPoints.forEach((point) => {
+      this._renderTripItem(point);
+    });
   }
 
   _renderBoard() {
-    // this._renderTripInfo();
-    // this._renderSort();
-    this._renderTripList();
-    // this._renderFilters();
+    switch (this._currentSortType) {
+      case SORT_TYPES.date:
+        this._boardPoints = filtersUtils[this._filtersModel.getFilter()](this._points.getPoints().sort(sortDate));
+        break;
+      case SORT_TYPES.time:
+        this._boardPoints = filtersUtils[this._filtersModel.getFilter()](this._points.getPoints().sort(sortDuration));
+        break;
+      case SORT_TYPES.price:
+        this._boardPoints = filtersUtils[this._filtersModel.getFilter()](this._points.getPoints().sort(sortCost));
+        break;
+    }
+    if (this._boardPoints.length > 0) {
+      this._renderSort();
+      this._renderTripList();
+      if (this._tripInfo === null) {
+        this._tripInfo = new TripInfo(this._boardPoints);
+        this._renderTripInfo();
+      }
+    } else {
+      this._renderEmptyList();
+    }
+
+
     // this._renderMenu();
   }
 
@@ -83,14 +88,20 @@ export default class Trip {
     this._points.updatePoint(UpdateType.MINOR, updated);
   }
 
-  _handleUpdateModel(type, item) {
+  _handleUpdateModel(type, item = {}) {
     switch (type) {
       case UpdateType.PATCH:
         this._pointPresenter[item.id].init(item);
         break;
       case UpdateType.MINOR:
-        this._removeList();
-        this._renderTripList();
+        this._clearBoard();
+        this._renderBoard();
+        break;
+      case UpdateType.MAJOR:
+        this._clearBoard({resetSortType: true, newTripInfo: true});
+        this._renderBoard();
+        this._tripInfo = new TripInfo(this._boardPoints);
+        this._renderTripInfo();
         break;
     }
   }
@@ -105,11 +116,20 @@ export default class Trip {
     Object.values(this._pointPresenter).forEach((pointPresenter) => pointPresenter.resetView());
   }
 
-  _removeList() {
+  _clearBoard({resetSortType = false, newTripInfo = false} = {}) {
     for (let renderedPoint of Object.values(this._pointPresenter)) {
       renderedPoint.destroy();
     }
+    remove(this._sorts);
+    remove(this._emptyList);
     this._pointPresenter = {};
+
+    if (resetSortType) {
+      this._currentSortType = SORT_TYPES.date;
+    }
+    if (newTripInfo) {
+      remove(this._tripInfo);
+    }
   }
 
   _renderEmptyList() {
@@ -121,42 +141,20 @@ export default class Trip {
   }
 
   _handleSortTypeChange(sortType) {
-    // this._sortPoints(sortType);
     this._currentSortType = sortType;
-    this._removeList();
-    this._renderTripList();
-  }
-
-  _sortPoints(sortType) {
-    this._currentSortType = sortType;
-    switch (sortType) {
-      case SORT_TYPES.date:
-        this._boardPoints.sort(sortDate);
-        break;
-      case SORT_TYPES.time:
-        this._boardPoints.sort(sortDuration);
-        break;
-      case SORT_TYPES.price:
-        this._boardPoints.sort(sortCost);
-        break;
-      default:
-        throw new Error(`Unknown sort type.`);
-    }
+    this._clearBoard();
+    this._renderBoard();
   }
 
   _renderSort() {
-    this._sorts = new Sorts();
+    this._sorts = new Sorts(this._currentSortType);
     this._sorts.setResortHandler(this._handleSortTypeChange);
     renderElement(this._htmlElements.contentWrapper, this._sorts.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
   }
 
 
   _renderTripInfo() {
-    renderElement(this._htmlElements.headerTripWrapper, this.tripInfo.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
-  }
-
-  _renderFilters() {
-    renderElement(this._htmlElements.headerFilterWrapper, this._filters.getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
+    renderElement(this._htmlElements.headerTripWrapper, this._tripInfo.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
   }
 
 }
