@@ -21,10 +21,13 @@
     "node": "12"
   },
   "dependencies": {
+    "choices.js": "^10.2.0",
     "css-loader": "5.0.1",
     "dayjs": "^1.11.10",
     "flatpickr": "^4.6.13",
     "nanoid": "^5.0.4",
+    "select2": "^4.1.0-rc.0",
+    "selectize": "^0.12.6",
     "style-loader": "^2.0.0"
   }
 }

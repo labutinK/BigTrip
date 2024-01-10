@@ -10,11 +10,15 @@ import Point from "./Point";
 import {sortDuration, sortCost, sortDate, updateItem} from "../utils/common";
 import dayjs from "dayjs";
 import duration from 'dayjs/plugin/duration';
-import {SORT_TYPES, UpdateType, UserActions} from "../const";
+import {FilterType, SORT_TYPES, UpdateType, UserActions} from "../const";
 import {remove} from "../utils/render";
 import Filter from "../model/Filter";
 import {filtersUtils} from "../utils/filter";
 import TripInfo from "../view/TripInfo";
+import TripPointEdit from "../view/TripPointEdit";
+import {nanoid} from "nanoid";
+import {generatePoint} from "../mock/point";
+import NewPoint from "./NewPoint";
 
 
 dayjs.extend(duration);
@@ -34,11 +38,19 @@ export default class Trip {
       headerTripWrapper: this._htmlWrapper.querySelector(`.trip-main`),
       headerNavWrapper: this._htmlWrapper.querySelector(`.trip-controls__navigation`),
       contentWrapper: this._htmlWrapper.querySelector(`.trip-events`),
+      addNewBtn: this._htmlWrapper.querySelector(`.trip-main__event-add-btn`)
     };
+
     this._handleChangeView = this._handleChangeView.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleUpdateModel = this._handleUpdateModel.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+    this._renderBoard = this._renderBoard.bind(this);
+    this._handleAddNew = this._handleAddNew.bind(this);
+    this._disableAddNewBtnHandler = this._disableAddNewBtnHandler.bind(this);
+
+    this._htmlElements.addNewBtn.addEventListener(`click`, this._handleAddNew);
+    this._addPointForm = new NewPoint(this._tripList, this._handleChangeView, this._disableAddNewBtnHandler);
 
     this._points = points;
 
@@ -83,14 +95,26 @@ export default class Trip {
     // this._renderMenu();
   }
 
+  _disableAddNewBtnHandler() {
+    this._htmlElements.addNewBtn.disabled = false;
+  }
 
-  _handleChangeView(action, element) {
+  _handleAddNew() {
+    this._filtersModel.setFilter(UpdateType.MAJOR, FilterType.ALL);
+    this._addPointForm.init();
+    this._htmlElements.addNewBtn.disabled = true;
+  }
+
+  _handleChangeView(action, type, element) {
     switch (action) {
       case UserActions.UPDATE:
-        this._points.updatePoint(UpdateType.MAJOR, element);
+        this._points.updatePoint(type, element);
         break;
       case UserActions.DELETE:
-        this._points.deletePoint(UpdateType.MAJOR, element);
+        this._points.deletePoint(type, element);
+        break;
+      case UserActions.CREATE:
+        this._points.createPoint(type, element);
         break;
     }
   }
@@ -148,6 +172,7 @@ export default class Trip {
   _renderMenu() {
     renderElement(this._htmlElements.headerNavWrapper, this._menu.getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
   }
+
 
   _handleSortTypeChange(sortType) {
     this._currentSortType = sortType;

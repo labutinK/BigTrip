@@ -4,7 +4,7 @@ import {nanoid} from "nanoid";
 import {pointTypes, towns, offers, destinations} from './consts';
 
 export const generatePoint = (newPoint = false) => {
-  const date = dayjs().add(getRandomInteger(3, 10), `day`).add(getRandomInteger(5, 10), `hour`).add(getRandomInteger(1, 6) * 10, `minute`);
+  const date = dayjs().add(getRandomInteger(-3, 3), `day`).add(getRandomInteger(5, 10), `hour`).add(getRandomInteger(1, 6) * 10, `minute`);
   const type = pointTypes[getRandomInteger(0, pointTypes.length - 1)];
   const pointOffers = offers.get(type);
   const townInd = getRandomInteger(0, towns.length - 1);
@@ -19,8 +19,8 @@ export const generatePoint = (newPoint = false) => {
     }).map((offer) => offer.formName),
     town: newPoint ? `` : towns[townInd],
     cost: newPoint ? `` : getRandomInteger(0, 149) * 5,
-    dateStart: date,
-    dateEnd: date.add(getRandomInteger(5, 10), `hour`).add(getRandomInteger(1, 6) * 10, `minute`),
+    dateStart: newPoint ? dayjs() : date,
+    dateEnd: newPoint ? dayjs() : date.add(getRandomInteger(5, 10), `hour`).add(getRandomInteger(1, 6) * 10, `minute`),
     isFavorite: newPoint ? false : Boolean(getRandomInteger(0, 1))
   };
 };

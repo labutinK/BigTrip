@@ -4,7 +4,8 @@ import AbstractView from "./AbstractView";
 const createTripInfoTemplate = (points) => {
   if (points.length > 0) {
     let cost = points.reduce(function (sum, current) {
-      return parseInt(sum, 10) + parseInt(current.cost, 10);
+      const curCost = isNaN(parseInt(current.cost, 10)) ? 0 : parseInt(current.cost, 10);
+      return parseInt(sum, 10) + curCost;
     }, 0);
 
     let tempTown = ``;

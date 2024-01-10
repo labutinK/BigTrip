@@ -3,7 +3,7 @@ import TripPointEdit from "../view/TripPointEdit";
 import {DOM_POSITIONS, renderElement} from "../utils/render";
 import {isEvtEscape} from "../utils/common";
 import {replace, remove} from "../utils/render";
-import {UserActions} from "../const";
+import {UpdateType, UserActions} from "../const";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -77,12 +77,13 @@ export default class Point {
   _favoriteHandler() {
     return this._changeData(
         UserActions.UPDATE,
+        UpdateType.PATCH,
         Object.assign({}, this._point, {'isFavorite': !this._point.isFavorite})
     );
   }
 
   _submitForm(point) {
-    this._changeData(UserActions.UPDATE, point);
+    this._changeData(UserActions.UPDATE, UpdateType.MINOR, point);
     this._displayPoint();
   }
 
@@ -100,6 +101,6 @@ export default class Point {
 
 
   _deletePoint(point) {
-    this._changeData(UserActions.DELETE, point);
+    this._changeData(UserActions.DELETE, UpdateType.MAJOR, point);
   }
 }

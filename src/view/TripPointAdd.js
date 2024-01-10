@@ -28,7 +28,7 @@ const createTripPointForm = (point) => {
       const currentDestination = destinations.get(point.town);
       if (currentDestination.description || currentDestination.photos.length > 0) {
         destinationBlock +=
-            `<section class="event__section  event__section--destination">
+                    `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>`;
 
         if (currentDestination.description) {
@@ -152,7 +152,7 @@ const createTripPointForm = (point) => {
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
+                  <button class="event__reset-btn" type="reset">Cancel</button>
                 </header>
                 <section class="event__details">
                   <section class="event__section  event__section--offers">
@@ -167,17 +167,17 @@ const createTripPointForm = (point) => {
 };
 
 
-export default class TripPointEdit extends AbstractSmart {
+export default class TripPointAdd extends AbstractSmart {
   constructor(point = {}) {
     super();
-    this._data = TripPointEdit.parsePointToData(point);
+    this._data = TripPointAdd.parsePointToData(point);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._typeChangedHandler = this._typeChangedHandler.bind(this);
     this._townChangeHandler = this._townChangeHandler.bind(this);
     this._costChangeHandler = this._costChangeHandler.bind(this);
     this._offerChangeHandler = this._offerChangeHandler.bind(this);
     this._datesChangeHandler = this._datesChangeHandler.bind(this);
-    this._deleteHandler = this._deleteHandler.bind(this);
+    this.smartRemove = this.smartRemove.bind(this);
     this._setInnerHandlers();
   }
 
@@ -200,7 +200,7 @@ export default class TripPointEdit extends AbstractSmart {
   _formSubmitHandler(evt) {
     evt.preventDefault();
     this._destroyCalendar();
-    this._callback.formSubmit(TripPointEdit.parseDataToPoint(this._data));
+    this._callback.formSubmit(TripPointAdd.parseDataToPoint(this._data));
   }
 
   _offerChangeHandler() {
@@ -254,6 +254,8 @@ export default class TripPointEdit extends AbstractSmart {
     });
     if (this._data.town) {
       townSelect.setChoiceByValue(this._data.town);
+    } else {
+      townSelect.clearInput();
     }
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
 
@@ -270,7 +272,7 @@ export default class TripPointEdit extends AbstractSmart {
         offerElement.addEventListener(`click`, this._offerChangeHandler);
       });
     }
-
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this.smartRemove);
   }
 
   _destroyCalendar() {
@@ -334,6 +336,7 @@ export default class TripPointEdit extends AbstractSmart {
   smartRemove() {
     this._destroyCalendar();
     remove(this);
+    this._callback.closeForm();
   }
 
   restoreHandlers() {
@@ -345,13 +348,7 @@ export default class TripPointEdit extends AbstractSmart {
     return createTripPointForm(this._data);
   }
 
-  setDeleteHandler(cb) {
-    this._callback.delete = cb;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteHandler);
-  }
-
-  _deleteHandler(evt) {
-    evt.preventDefault();
-    this._callback.delete(TripPointEdit.parseDataToPoint(this._data));
+  setCloseFormHandler(cb) {
+    this._callback.closeForm = cb;
   }
 }

@@ -980,3 +980,16 @@ main {
 
 .statistics__item:not(:last-child) {
   margin-bottom: 78px; }
+
+.event__header .choices[data-type*="select-one"] {
+  flex-grow: 1;
+}
+.event__header .choices__list--single {
+}
+.event__header .choices__inner {
+  min-height: auto;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

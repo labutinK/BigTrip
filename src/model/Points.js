@@ -30,7 +30,17 @@ export default class Points extends Observer {
     this._notify(updateType, updateItem);
   }
 
+  createPoint(updateType, newItem) {
+    if (Object.keys(newItem).length === 0) {
+      return this._points;
+    }
 
+    this._points.push(newItem);
+
+    this._notify(updateType, newItem);
+  }
+
+  // eslint-disable-next-line consistent-return
   deletePoint(updateType, deleteItem) {
     const index = this._points.findIndex((item) => item.id === deleteItem.id);
 

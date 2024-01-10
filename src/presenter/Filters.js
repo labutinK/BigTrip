@@ -19,7 +19,8 @@ export default class Filters {
     this._filtersModel.setFilter(updateType, newFilter);
   }
 
-  _renderNewFilter() {
+  _renderNewFilter(type, filter) {
+    this._activeFilter = filter;
     const newFilterView = new FiltersView(this._filters, this._activeFilter);
     replace(newFilterView.getElement(), this._filtersView.getElement());
     this._filtersView = newFilterView;
