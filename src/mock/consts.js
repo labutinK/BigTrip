@@ -301,15 +301,7 @@ export const offers = new Map([
 ]);
 
 
-export const menuItems = [
-  {
-    label: `Table`,
-    href: `#`,
-    checked: true
-  },
-  {
-    label: `Stats`,
-    href: `#`,
-    checked: false
-  }
-];
+export const menuItems = {
+  TABEL: `TABEL`,
+  STATS: `STATS`
+};

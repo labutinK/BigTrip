@@ -84,7 +84,7 @@ const createTripPointForm = (point) => {
   const getTowns = () => {
     let townsDataList = `<select class="event__input  event__input--destination" name="event-destination">`;
     if (point.town === ``) {
-      townsDataList += `<option value="" selected disabled>Выберите значение</option>`;
+      townsDataList += `<option value="" selected disabled>Choose a town</option>`;
     }
     towns.forEach((town) => {
       townsDataList += `<option value="${town}">${town}</option>`;

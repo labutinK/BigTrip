@@ -1,23 +1,15 @@
 import TripList from "../view/TripList";
-import FiltersView from "../view/Filters";
 import Sorts from "../view/Sort";
-import TripInfoView from "../view/TripInfo";
 import EmptyList from "../view/EmptyList";
-import {filters, menuItems} from "../mock/consts";
-import Menu from "../view/Menu";
-import {DOM_POSITIONS, renderElement, replace} from "../utils/render";
+import {DOM_POSITIONS, renderElement} from "../utils/render";
 import Point from "./Point";
-import {sortDuration, sortCost, sortDate, updateItem} from "../utils/common";
+import {sortDuration, sortCost, sortDate} from "../utils/common";
 import dayjs from "dayjs";
 import duration from 'dayjs/plugin/duration';
 import {FilterType, SORT_TYPES, UpdateType, UserActions} from "../const";
 import {remove} from "../utils/render";
-import Filter from "../model/Filter";
 import {filtersUtils} from "../utils/filter";
 import TripInfo from "../view/TripInfo";
-import TripPointEdit from "../view/TripPointEdit";
-import {nanoid} from "nanoid";
-import {generatePoint} from "../mock/point";
 import NewPoint from "./NewPoint";
 
 
@@ -29,17 +21,16 @@ export default class Trip {
     this._htmlWrapper = wrapper;
     this._tripList = new TripList();
     this._emptyList = new EmptyList();
-    this._menu = new Menu(menuItems);
     this._filtersModel = filtersModel;
 
     this._htmlElements = {
       siteBody: this._htmlWrapper.querySelector(`.page-body`),
       siteHeader: this._htmlWrapper.querySelector(`.page-header`),
       headerTripWrapper: this._htmlWrapper.querySelector(`.trip-main`),
-      headerNavWrapper: this._htmlWrapper.querySelector(`.trip-controls__navigation`),
-      contentWrapper: this._htmlWrapper.querySelector(`.trip-events`),
-      addNewBtn: this._htmlWrapper.querySelector(`.trip-main__event-add-btn`)
+      addNewBtn: this._htmlWrapper.querySelector(`.trip-main__event-add-btn`),
     };
+    this.contentWrapper = this._htmlWrapper.querySelector(`.trip-events`);
+
 
     this._handleChangeView = this._handleChangeView.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
@@ -62,9 +53,17 @@ export default class Trip {
     this._renderBoard();
   }
 
+  show() {
+    this.contentWrapper.classList.remove(`visually-hidden`);
+  }
+
+  hide() {
+    this.contentWrapper.classList.add(`visually-hidden`);
+  }
+
 
   _renderTripList() {
-    renderElement(this._htmlElements.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+    renderElement(this.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
     this._boardPoints.forEach((point) => {
       this._renderTripItem(point);
     });
@@ -92,8 +91,8 @@ export default class Trip {
     } else {
       this._renderEmptyList();
     }
-    // this._renderMenu();
   }
+
 
   _disableAddNewBtnHandler() {
     this._htmlElements.addNewBtn.disabled = false;
@@ -139,6 +138,10 @@ export default class Trip {
     }
   }
 
+  resetToDefault() {
+    this._filtersModel.setFilter(UpdateType.MAJOR, FilterType.ALL);
+  }
+
   _renderTripItem(pointData) {
     let pointPresenter = new Point(this._tripList, this._handleChangeView, this._handleModeChange);
     this._pointPresenter[pointData.id] = pointPresenter;
@@ -166,11 +169,7 @@ export default class Trip {
   }
 
   _renderEmptyList() {
-    renderElement(this._htmlElements.contentWrapper, this._emptyList.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
-  }
-
-  _renderMenu() {
-    renderElement(this._htmlElements.headerNavWrapper, this._menu.getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
+    renderElement(this.contentWrapper, this._emptyList.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
   }
 
 
@@ -183,7 +182,7 @@ export default class Trip {
   _renderSort() {
     this._sorts = new Sorts(this._currentSortType);
     this._sorts.setResortHandler(this._handleSortTypeChange);
-    renderElement(this._htmlElements.contentWrapper, this._sorts.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
+    renderElement(this.contentWrapper, this._sorts.getElement(), DOM_POSITIONS[`BEFOREEND`]);
   }
 
 

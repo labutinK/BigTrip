@@ -14,6 +14,15 @@ export default class Filters {
     this._filtersView.setFilterHandler(this._handleUpdateView);
   }
 
+
+  show() {
+    this._filtersView.getElement().firstElementChild.parentNode.classList.remove(`visually-hidden`);
+  }
+
+  hide() {
+    this._filtersView.getElement().firstElementChild.parentNode.classList.add(`visually-hidden`);
+  }
+
   _handleUpdateView(updateType, newFilter) {
     this._activeFilter = newFilter;
     this._filtersModel.setFilter(updateType, newFilter);
