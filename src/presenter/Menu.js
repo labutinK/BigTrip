@@ -2,14 +2,18 @@ import MenuView from "../view/Menu";
 import {menuItems} from "../mock/consts";
 import {DOM_POSITIONS, renderElement, replace} from "../utils/render";
 
+const HIDE_CLASS = `visually-hidden`;
+
 export default class Menu {
 
   constructor(TripItem, StatisticItem, filterPresenter) {
     this._menuWrapper = document.querySelector(`.trip-controls__navigation`);
-    this._menuView = new MenuView(menuItems, menuItems.STATS);
+    this._addNewBtn = document.querySelector(`.trip-main__event-add-btn`);
+
+    this._menuView = new MenuView(menuItems, menuItems.TABEL);
     this._changeMenuItemHandler = this._changeMenuItemHandler.bind(this);
     this._menuView.setMenuClickHandler(this._changeMenuItemHandler);
-    this._activeMenuItem = menuItems.STATS;
+    this._activeMenuItem = menuItems.TABEL;
     this._tripMenuItem = TripItem;
     this._filterPresenter = filterPresenter;
     this._statisticMenuItem = StatisticItem;
@@ -40,11 +44,13 @@ export default class Menu {
         this._tripMenuItem.resetToDefault();
         this._statisticMenuItem.show();
         this._filterPresenter.hide();
+        this._addNewBtn.classList.add(HIDE_CLASS);
         break;
       case menuItems.TABEL:
         this._statisticMenuItem.hide();
         this._tripMenuItem.show();
         this._filterPresenter.show();
+        this._addNewBtn.classList.remove(HIDE_CLASS);
         break;
     }
   }

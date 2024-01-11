@@ -1,4 +1,4 @@
-import {getDateInFormat, getDateDiff} from "../utils/date";
+import {getDateInFormat, getDateDiff, getDateInDHMFormat} from "../utils/date";
 import AbstractView from "./AbstractView";
 import {offers} from "../mock/consts";
 import {createElement} from "../utils/common";
@@ -38,7 +38,7 @@ const createTripPoint = (point) => {
   };
 
   const getDuration = () => {
-    const result = getDateDiff(point.dateStart, point.dateEnd, `d h m`);
+    const result = getDateInDHMFormat(getDateDiff(point.dateStart, point.dateEnd));
     if (!result) {
       return ``;
     }

@@ -159,6 +159,7 @@ export default class Trip {
     remove(this._sorts);
     remove(this._emptyList);
     this._pointPresenter = {};
+    this._addPointForm.destroy();
 
     if (resetSortType) {
       this._currentSortType = SORT_TYPES.date;

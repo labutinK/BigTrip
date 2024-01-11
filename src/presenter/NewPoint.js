@@ -34,7 +34,9 @@ export default class NewPoint {
   }
 
   destroy() {
-    this._pointItemEdit.smartRemove();
+    if (this._pointItemEdit) {
+      this._pointItemEdit.smartRemove();
+    }
   }
 
   _closeForm(evt) {

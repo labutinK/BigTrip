@@ -21,6 +21,8 @@
     "node": "12"
   },
   "dependencies": {
+    "chart.js": "2.9.4",
+    "chartjs-plugin-datalabels": "0.7.0",
     "choices.js": "^10.2.0",
     "css-loader": "5.0.1",
     "dayjs": "^1.11.10",
