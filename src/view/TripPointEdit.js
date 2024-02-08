@@ -1,5 +1,3 @@
-import {pointTypes} from "../mock/consts";
-import {towns, destinations, offers} from "../mock/consts";
 import AbstractSmart from "./AbstractSmart";
 import {getDateInFormat} from "../utils/date";
 import {nanoid} from "nanoid";
@@ -18,15 +16,16 @@ const POINT_DATES = {
   'event-end-time': `dateEnd`
 };
 
-const createTripPointForm = (point) => {
+const createTripPointForm = (point, serverData) => {
 
   const unicFormId = nanoid(6);
 
   const getDestinationInfo = () => {
     let destinationBlock = ``;
-    if (point.town && destinations.has(point.town)) {
-      const currentDestination = destinations.get(point.town);
-      if (currentDestination.description || currentDestination.photos.length > 0) {
+
+    if (point.town && serverData.destinations.has(point.town)) {
+      const currentDestination = serverData.destinations.get(point.town);
+      if (currentDestination.description || currentDestination.pictures.length > 0) {
         destinationBlock +=
             `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>`;
@@ -34,11 +33,11 @@ const createTripPointForm = (point) => {
         if (currentDestination.description) {
           destinationBlock += `<p class="event__destination-description">${currentDestination.description}</p>`;
         }
-        if (currentDestination.photos.length > 0) {
+        if (currentDestination.pictures.length > 0) {
           destinationBlock += `<div class="event__photos-container">
                       <div class="event__photos-tape">`;
-          currentDestination.photos.forEach((photo) => {
-            destinationBlock += `<img class="event__photo" src="${photo}" alt="Event photo">`;
+          currentDestination.pictures.forEach(({src, description}) => {
+            destinationBlock += `<img class="event__photo" src="${src}" alt="${description}">`;
           });
 
           destinationBlock += `</div></div>`;
@@ -54,14 +53,17 @@ const createTripPointForm = (point) => {
     let offersListStr = `<div class="event__available-offers">`;
 
     const offerIsChecked = (offer) => {
-      if (point.offers.length > 0 && point.offers.some((pointOffer) => pointOffer === offer.formName)) {
+      if (point.offers.length > 0 && point.offers.some((pointOffer) => {
+        return pointOffer.formName === offer.formName;
+      })) {
         return `checked`;
       }
       return ``;
     };
 
-    if (offers.has(point.type) && offers.get(point.type).length > 0) {
-      let offersForType = offers.get(point.type);
+
+    if (serverData.offers.has(point.type) && serverData.offers.get(point.type).length > 0) {
+      let offersForType = serverData.offers.get(point.type);
       offersForType.forEach((offer, ind) => {
         let idField = (Math.random() + 1).toString(36).substring(3) + `_` + ind;
         offersListStr +=
@@ -86,7 +88,7 @@ const createTripPointForm = (point) => {
     if (point.town === ``) {
       townsDataList += `<option value="" selected disabled>Choose a town</option>`;
     }
-    towns.forEach((town) => {
+    serverData.towns.forEach((town) => {
       townsDataList += `<option value="${town}">${town}</option>`;
     });
     townsDataList += `</select>`;
@@ -97,13 +99,13 @@ const createTripPointForm = (point) => {
                 <legend class="visually-hidden">Event type</legend>`;
 
     const checkedIfCurrent = (type) => {
-      if (type.toLowerCase() === point.type.toLowerCase()) {
+      if (type === point) {
         return `checked`;
       }
       return ``;
     };
 
-    pointTypes.forEach((pointType) => {
+    serverData.pointTypes.forEach((pointType) => {
       typesList += `<div class="event__type-item">
             <input ${checkedIfCurrent(pointType)} id="event-type-${pointType.toLowerCase()}-${unicFormId}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType.toLowerCase()}">
                 <label class="event__type-label  event__type-label--${pointType.toLowerCase()}" for="event-type-${pointType.toLowerCase()}-${unicFormId}">${pointType}</label>
@@ -168,9 +170,10 @@ const createTripPointForm = (point) => {
 
 
 export default class TripPointEdit extends AbstractSmart {
-  constructor(point = {}) {
+  constructor(point = {}, serverData) {
     super();
     this._data = TripPointEdit.parsePointToData(point);
+    this._serverData = serverData;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._typeChangedHandler = this._typeChangedHandler.bind(this);
     this._townChangeHandler = this._townChangeHandler.bind(this);
@@ -203,8 +206,12 @@ export default class TripPointEdit extends AbstractSmart {
     this._callback.formSubmit(TripPointEdit.parseDataToPoint(this._data));
   }
 
+  _getCheckedOfferObjFromName(formName) {
+    return this._serverData.offers.get(this._data.type).filter((offer) => offer.formName === formName)[0];
+  }
+
   _offerChangeHandler() {
-    let actualOffers = [...this._offerElements].filter((offer) => offer.checked).map((checkedOffer) => checkedOffer.name);
+    let actualOffers = [...this._offerElements].filter((offer) => offer.checked).map((checkedOffer) => this._getCheckedOfferObjFromName(checkedOffer.name));
     this.updateData({offers: actualOffers}, true);
   }
 
@@ -229,12 +236,12 @@ export default class TripPointEdit extends AbstractSmart {
   _townChangeHandler(evt) {
     evt.preventDefault();
     const town = evt.target.value;
-    this.updateData({town}, true);
+    let destination = this._serverData.destinations.has(town) ? this._serverData.destinations.get(town) : {};
+    this.updateData({town, destination}, true);
   }
 
   _typeChangedHandler(evt) {
-    const val = evt.target.value;
-    const type = val[0].toUpperCase() + val.slice(1);
+    const type = evt.target.value;
     this.updateData({type, offers: []}, true);
   }
 
@@ -245,11 +252,11 @@ export default class TripPointEdit extends AbstractSmart {
 
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._typeChangedHandler);
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteHandler);
 
     const destinationElement = this.getElement().querySelector(`.event__input--destination`);
     destinationElement.addEventListener(`change`, this._townChangeHandler);
     const townSelect = new Choices(destinationElement, {
-      removeItemButton: true, // добавить кнопку удаления
       searchEnabled: true // отключить поиск
     });
     if (this._data.town) {
@@ -342,7 +349,7 @@ export default class TripPointEdit extends AbstractSmart {
   }
 
   getTemplate() {
-    return createTripPointForm(this._data);
+    return createTripPointForm(this._data, this._serverData);
   }
 
   setDeleteHandler(cb) {

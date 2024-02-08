@@ -11,10 +11,11 @@ const Mode = {
 };
 
 export default class Point {
-  constructor(listWrapper, changeData, closeOthers) {
+  constructor(listWrapper, changeData, closeOthers, serverData) {
     this._listWrapper = listWrapper;
     this._pointItem = null;
     this._pointItemEdit = null;
+    this._serverData = serverData;
     this._displayForm = this._displayForm.bind(this);
     this._closeForm = this._closeForm.bind(this);
     this._displayPoint = this._displayPoint.bind(this);
@@ -31,8 +32,8 @@ export default class Point {
     const prevPointEditItem = this._pointItemEdit;
 
     this._point = point;
-    this._pointItem = new TripPoint(this._point);
-    this._pointItemEdit = new TripPointEdit(this._point);
+    this._pointItem = new TripPoint(this._point, this._serverData);
+    this._pointItemEdit = new TripPointEdit(this._point, this._serverData);
 
     this._pointItem.setEditOnHandler(this._displayForm);
     this._pointItemEdit.setFormSubmitHandler(this._submitForm);
@@ -83,8 +84,7 @@ export default class Point {
   }
 
   _submitForm(point) {
-    this._changeData(UserActions.UPDATE, UpdateType.MINOR, point);
-    this._displayPoint();
+    this._changeData(UserActions.UPDATE, UpdateType.MAJOR, point);
   }
 
   resetView() {

@@ -1,8 +1,12 @@
 import MenuView from "../view/Menu";
-import {menuItems} from "../mock/consts";
 import {DOM_POSITIONS, renderElement, replace} from "../utils/render";
 
 const HIDE_CLASS = `visually-hidden`;
+
+const menuItems = {
+  TABEL: `TABEL`,
+  STATS: `STATS`
+};
 
 export default class Menu {
 

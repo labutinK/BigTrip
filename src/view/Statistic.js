@@ -51,7 +51,7 @@ export default class Statistic extends AbstractView {
 
   _installStatistic(element, title, labels, dateset, formater = (val) => val) {
     const BAR_HEIGHT = 55;
-    this._moneyBlock.height = BAR_HEIGHT * 5;
+    this._moneyBlock.height = BAR_HEIGHT * labels.length;
 
     new Chart(element, {
       plugins: [ChartDataLabels],

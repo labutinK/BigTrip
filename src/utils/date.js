@@ -1,7 +1,14 @@
 import dayjs from "dayjs";
 import duration from 'dayjs/plugin/duration';
-
+import utc from 'dayjs/plugin/utc'; // Не забудьте установить плагин
+import CustomParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(CustomParseFormat);
+dayjs.extend(utc);
 dayjs.extend(duration);
+
+export const getDayjsObjInFormat = function (dateString, format = `YYYY-MM-DDTHH:mm:ss.SSS[Z]`) {
+  return dayjs(dateString, format, true);
+};
 
 export const getDateInFormat = function (date, format = `MMMM D`) {
   if (date === null) {
@@ -9,6 +16,7 @@ export const getDateInFormat = function (date, format = `MMMM D`) {
   }
   return dayjs(date).format(format);
 };
+
 
 export const getDateDiffInMinutes = function (date1, date2) {
   if (date1 === null || date2 === null) {

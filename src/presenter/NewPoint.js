@@ -1,9 +1,8 @@
 import TripPointAdd from "../view/TripPointAdd";
 import {DOM_POSITIONS, renderElement} from "../utils/render";
 import {isEvtEscape} from "../utils/common";
-import {replace, remove} from "../utils/render";
 import {UpdateType, UserActions} from "../const";
-import {generatePoint} from "../mock/point";
+import {generateNewPoint} from "../utils/common";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -11,9 +10,10 @@ const Mode = {
 };
 
 export default class NewPoint {
-  constructor(listWrapper, changeData, btnDisableCb) {
+  constructor(listWrapper, changeData, btnDisableCb, serverData) {
     this._listWrapper = listWrapper;
     this._pointItemEdit = null;
+    this._serverData = serverData;
     this._closeForm = this._closeForm.bind(this);
     this._submitForm = this._submitForm.bind(this);
     this._changeData = changeData;
@@ -25,8 +25,8 @@ export default class NewPoint {
     if (this._pointItemEdit !== null) {
       this._pointItemEdit.smartRemove();
     }
-    this._point = generatePoint(true);
-    this._pointItemEdit = new TripPointAdd(this._point);
+    this._point = generateNewPoint(this._serverData);
+    this._pointItemEdit = new TripPointAdd(this._point, this._serverData);
     this._pointItemEdit.setCloseFormHandler(this._btnDisableCb);
     this._pointItemEdit.setFormSubmitHandler(this._submitForm);
     renderElement(this._listWrapper.getElement(), this._pointItemEdit.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);

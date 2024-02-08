@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import {nanoid} from "nanoid";
 
 export const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -89,11 +90,9 @@ export const sortDuration = (a, b) => {
 };
 
 export const sortCost = (a, b) => {
-  const weight = getWeightForNullDate(a.cost, b.cost);
-  if (weight !== null) {
-    return weight;
-  }
-  return parseInt(a.cost, 10) < parseInt(b.cost, 10);
+  a = isNaN(parseInt(a.cost, 10)) ? 0 : parseInt(a.cost, 10);
+  b = isNaN(parseInt(b.cost, 10)) ? 0 : parseInt(b.cost, 10);
+  return a < b;
 };
 
 export const createElement = (template) => {
@@ -101,4 +100,18 @@ export const createElement = (template) => {
   newElement.innerHTML = template;
 
   return newElement.firstElementChild;
+};
+
+export const generateNewPoint = (serverData) => {
+  const type = serverData.pointTypes[0];
+  return {
+    id: nanoid(10),
+    type,
+    offers: [],
+    town: ``,
+    cost: ``,
+    dateStart: dayjs(),
+    dateEnd: dayjs(),
+    isFavorite: false
+  };
 };

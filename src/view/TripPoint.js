@@ -1,20 +1,19 @@
 import {getDateInFormat, getDateDiff, getDateInDHMFormat} from "../utils/date";
 import AbstractView from "./AbstractView";
-import {offers} from "../mock/consts";
 import {createElement} from "../utils/common";
 
-const createTripPoint = (point) => {
+const createTripPoint = (point, serverData) => {
 
   const favoriteClassName = point.isFavorite ? `event__favorite-btn--active` : ``;
 
   const getOffers = () => {
     let str = ``;
-    if (offers.has(point.type) && offers.get(point.type).length > 0) {
+    if (serverData.offers.has(point.type.toLowerCase()) && serverData.offers.get(point.type.toLowerCase()).length > 0) {
       let offersAddedAlready = point.offers;
-      let offersForType = offers.get(point.type);
+      let offersForType = serverData.offers.get(point.type);
       let actualOffers = offersForType.filter((offer) => {
         for (let addedOffer of offersAddedAlready) {
-          if (addedOffer === offer.formName) {
+          if (addedOffer.formName === offer.formName) {
             return true;
           }
         }
@@ -99,9 +98,10 @@ const createTripPoint = (point) => {
 };
 
 export default class TripPoint extends AbstractView {
-  constructor(point) {
+  constructor(point, serverData) {
     super();
     this._point = point;
+    this._serverData = serverData;
     this._editPointHandler = this._editPointHandler.bind(this);
     this._favoriteHandler = this._favoriteHandler.bind(this);
   }
@@ -127,7 +127,7 @@ export default class TripPoint extends AbstractView {
   }
 
   getTemplate() {
-    return createTripPoint(this._point);
+    return createTripPoint(this._point, this._serverData);
   }
 }
 

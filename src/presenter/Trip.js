@@ -11,17 +11,21 @@ import {remove} from "../utils/render";
 import {filtersUtils} from "../utils/filter";
 import TripInfo from "../view/TripInfo";
 import NewPoint from "./NewPoint";
+import LoadingView from "../view/Loading";
+import Points from "../model/Points";
 
 
 dayjs.extend(duration);
 
 
 export default class Trip {
-  constructor(wrapper, points, filtersModel) {
+  constructor(wrapper, points, filtersModel, serverData, api) {
     this._htmlWrapper = wrapper;
     this._tripList = new TripList();
     this._emptyList = new EmptyList();
     this._filtersModel = filtersModel;
+    this._serverData = serverData;
+    this._api = api;
 
     this._htmlElements = {
       siteBody: this._htmlWrapper.querySelector(`.page-body`),
@@ -41,7 +45,7 @@ export default class Trip {
     this._disableAddNewBtnHandler = this._disableAddNewBtnHandler.bind(this);
 
     this._htmlElements.addNewBtn.addEventListener(`click`, this._handleAddNew);
-    this._addPointForm = new NewPoint(this._tripList, this._handleChangeView, this._disableAddNewBtnHandler);
+    this._addPointForm = new NewPoint(this._tripList, this._handleChangeView, this._disableAddNewBtnHandler, this._serverData);
 
     this._points = points;
 
@@ -50,7 +54,12 @@ export default class Trip {
     this._currentSortType = SORT_TYPES.date;
     this._pointPresenter = {};
     this._tripInfo = null;
-    this._renderBoard();
+    this._preloader();
+  }
+
+  _preloader() {
+    this._preloaderView = new LoadingView();
+    renderElement(this.contentWrapper, this._preloaderView.getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
   }
 
   show() {
@@ -84,10 +93,6 @@ export default class Trip {
     if (this._boardPoints.length > 0) {
       this._renderSort();
       this._renderTripList();
-      if (this._tripInfo === null) {
-        this._tripInfo = new TripInfo(this._boardPoints);
-        this._renderTripInfo();
-      }
     } else {
       this._renderEmptyList();
     }
@@ -107,13 +112,22 @@ export default class Trip {
   _handleChangeView(action, type, element) {
     switch (action) {
       case UserActions.UPDATE:
-        this._points.updatePoint(type, element);
+        this._api.updatePoint(element.id, element)
+            .then((updated) => {
+              this._points.updatePoint(type, updated);
+            });
         break;
       case UserActions.DELETE:
-        this._points.deletePoint(type, element);
+        this._api.deletePoint(element.id)
+            .then(() => {
+              this._points.deletePoint(type, element);
+            });
         break;
       case UserActions.CREATE:
-        this._points.createPoint(type, element);
+        this._api.createPoint(element)
+            .then((created) => {
+              this._points.createPoint(type, created);
+            });
         break;
     }
   }
@@ -135,6 +149,14 @@ export default class Trip {
           this._renderTripInfo();
         }
         break;
+      case UpdateType.INIT:
+        remove(this._preloaderView);
+        this._renderBoard();
+        if (this._boardPoints.length > 0) {
+          this._tripInfo = new TripInfo(this._boardPoints);
+          this._renderTripInfo();
+        }
+        break;
     }
   }
 
@@ -143,7 +165,7 @@ export default class Trip {
   }
 
   _renderTripItem(pointData) {
-    let pointPresenter = new Point(this._tripList, this._handleChangeView, this._handleModeChange);
+    let pointPresenter = new Point(this._tripList, this._handleChangeView, this._handleModeChange, this._serverData);
     this._pointPresenter[pointData.id] = pointPresenter;
     pointPresenter.init(pointData);
   }
