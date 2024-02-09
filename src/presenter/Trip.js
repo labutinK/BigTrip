@@ -109,18 +109,24 @@ export default class Trip {
     this._htmlElements.addNewBtn.disabled = true;
   }
 
-  _handleChangeView(action, type, element) {
+  _handleChangeView(action, type, element, startProcessing = () => {}, failedProcessing = () => {}) {
     switch (action) {
       case UserActions.UPDATE:
+        startProcessing(UserActions.UPDATE);
         this._api.updatePoint(element.id, element)
             .then((updated) => {
               this._points.updatePoint(type, updated);
+            }).catch(() => {
+              failedProcessing();
             });
         break;
       case UserActions.DELETE:
+        startProcessing(UserActions.DELETE);
         this._api.deletePoint(element.id)
             .then(() => {
               this._points.deletePoint(type, element);
+            }).catch(() => {
+              failedProcessing();
             });
         break;
       case UserActions.CREATE:

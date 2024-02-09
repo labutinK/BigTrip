@@ -102,7 +102,6 @@ export default class Points extends Observer {
   // eslint-disable-next-line consistent-return
   deletePoint(updateType, deleteItem) {
 
-    console.log(`131312`);
     const index = this._points.findIndex((item) => item.id === deleteItem.id);
 
     if (index === -1) {

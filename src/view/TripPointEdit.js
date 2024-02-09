@@ -8,12 +8,22 @@ import CustomParseFormat from 'dayjs/plugin/customParseFormat';
 import {remove} from "../utils/render";
 import '../../node_modules/choices.js/public/assets/styles/choices.min.css';
 import Choices from "choices.js";
+import {UserActions} from "../const";
 
 dayjs.extend(CustomParseFormat);
 
 const POINT_DATES = {
   'event-start-time': `dateStart`,
   'event-end-time': `dateEnd`
+};
+const PROCESS_TEXT = {
+  UPDATE: `Saving...`,
+  DELETE: `Deleting...`
+};
+
+const START_TEXT = {
+  UPDATE: `Save`,
+  DELETE: `Delete`
 };
 
 const createTripPointForm = (point, serverData) => {
@@ -27,7 +37,7 @@ const createTripPointForm = (point, serverData) => {
       const currentDestination = serverData.destinations.get(point.town);
       if (currentDestination.description || currentDestination.pictures.length > 0) {
         destinationBlock +=
-            `<section class="event__section  event__section--destination">
+                    `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>`;
 
         if (currentDestination.description) {
@@ -172,7 +182,7 @@ const createTripPointForm = (point, serverData) => {
 export default class TripPointEdit extends AbstractSmart {
   constructor(point = {}, serverData) {
     super();
-    this._data = TripPointEdit.parsePointToData(point);
+    this._data = point;
     this._serverData = serverData;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._typeChangedHandler = this._typeChangedHandler.bind(this);
@@ -184,26 +194,32 @@ export default class TripPointEdit extends AbstractSmart {
     this._setInnerHandlers();
   }
 
-  static parseDataToPoint(data) {
-    return Object.assign(
-        {},
-        data,
-        {}
-    );
-  }
-
-  static parsePointToData(point) {
-    return Object.assign(
-        {},
-        point,
-        {}
-    );
-  }
-
   _formSubmitHandler(evt) {
     evt.preventDefault();
     this._destroyCalendar();
-    this._callback.formSubmit(TripPointEdit.parseDataToPoint(this._data));
+    this._callback.formSubmit(this._data);
+  }
+
+  processingStart(type) {
+    this.getElement().querySelector(`form`).classList.add(`area-darken`);
+    switch (type) {
+      case UserActions.UPDATE:
+        this.getElement().querySelector(`.event__save-btn`).textContent = PROCESS_TEXT.UPDATE;
+        break;
+      case UserActions.DELETE:
+        this.getElement().querySelector(`.event__reset-btn`).textContent = PROCESS_TEXT.DELETE;
+        break;
+    }
+  }
+
+  processingFailed() {
+    this.getElement().querySelector(`form`).classList.add(`shake`);
+    setTimeout(() => {
+      this.getElement().querySelector(`form`).classList.remove(`shake`);
+      this.getElement().querySelector(`form`).classList.remove(`area-darken`);
+      this.getElement().querySelector(`.event__save-btn`).textContent = START_TEXT.UPDATE;
+      this.getElement().querySelector(`.event__reset-btn`).textContent = START_TEXT.DELETE;
+    }, 600);
   }
 
   _getCheckedOfferObjFromName(formName) {
@@ -359,6 +375,6 @@ export default class TripPointEdit extends AbstractSmart {
 
   _deleteHandler(evt) {
     evt.preventDefault();
-    this._callback.delete(TripPointEdit.parseDataToPoint(this._data));
+    this._callback.delete(this._data);
   }
 }

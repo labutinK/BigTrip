@@ -22,6 +22,8 @@ export default class Point {
     this._favoriteHandler = this._favoriteHandler.bind(this);
     this._submitForm = this._submitForm.bind(this);
     this._deletePoint = this._deletePoint.bind(this);
+    this._formIsProcessing = this._formIsProcessing.bind(this);
+    this._formProcessFailed = this._formProcessFailed.bind(this);
     this._changeData = changeData;
     this._closeOthers = closeOthers;
     this._mode = Mode.DEFAULT;
@@ -84,7 +86,15 @@ export default class Point {
   }
 
   _submitForm(point) {
-    this._changeData(UserActions.UPDATE, UpdateType.MAJOR, point);
+    this._changeData(UserActions.UPDATE, UpdateType.MAJOR, point, this._formIsProcessing, this._formProcessFailed);
+  }
+
+  _formIsProcessing(type) {
+    this._pointItemEdit.processingStart(type);
+  }
+
+  _formProcessFailed() {
+    this._pointItemEdit.processingFailed();
   }
 
   resetView() {
@@ -101,6 +111,6 @@ export default class Point {
 
 
   _deletePoint(point) {
-    this._changeData(UserActions.DELETE, UpdateType.MAJOR, point);
+    this._changeData(UserActions.DELETE, UpdateType.MAJOR, point, this._formIsProcessing, this._formProcessFailed);
   }
 }
