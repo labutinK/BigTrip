@@ -28,10 +28,11 @@ export default class Api {
     url,
     method = METHODS.GET,
     headers = new Headers(),
+    body = null,
   }) {
     headers.append(`Authorization`, this._authData);
-    return fetch(this._endPoint + url, {method, headers}).then(Api.checkStatus)
-            .catch(Api.catchError);
+    return fetch(this._endPoint + url, {method, headers, body}).then(Api.checkStatus)
+        .catch(Api.catchError);
   }
 
   getOffers() {
@@ -39,35 +40,37 @@ export default class Api {
   }
 
   updatePoint(pointId, pointData) {
-    const url = this._endPoint + ESSENCE.POINTS + pointId;
-    const method = METHODS.PUT;
-    const body = JSON.stringify(Points.adaptClientToPoint(pointData));
     let headers = new Headers();
-    headers.append(`Authorization`, this._authData);
     headers.append(`Content-Type`, `application/json`);
-    return fetch(url, {method, body, headers}).then(Api.toJSON).then(Points.adaptPointToClient);
+    return this._load({
+      url: ESSENCE.POINTS + pointId,
+      method: METHODS.PUT,
+      body: JSON.stringify(Points.adaptClientToPoint(pointData)),
+      headers,
+    }).then(Api.toJSON).then(Points.adaptPointToClient);
   }
 
   createPoint(pointData) {
-    const url = this._endPoint + ESSENCE.POINTS;
-    const method = METHODS.POST;
-    const body = JSON.stringify(Points.adaptClientToPoint(pointData));
     let headers = new Headers();
-    headers.append(`Authorization`, this._authData);
     headers.append(`Content-Type`, `application/json`);
-    return fetch(url, {method, body, headers}).then(Api.checkStatus).then(Api.toJSON).then(Points.adaptPointToClient);
+    return this._load({
+      url: ESSENCE.POINTS,
+      method: METHODS.POST,
+      body: JSON.stringify(Points.adaptClientToPoint(pointData)),
+      headers,
+    }).then(Api.toJSON).then(Points.adaptPointToClient);
   }
 
   deletePoint(id) {
-    const url = this._endPoint + ESSENCE.POINTS + id;
-    const method = METHODS.DELETE;
-    const body = `OK`;
     let headers = new Headers();
-    headers.append(`Authorization`, this._authData);
     headers.append(`Content-Type`, `text`);
-    return fetch(url, {method, body, headers}).then(Api.checkStatus);
+    return this._load({
+      url: ESSENCE.POINTS + id,
+      method: METHODS.DELETE,
+      body: `OK`,
+      headers
+    });
   }
-
 
   getPoints() {
     return this._load({url: ESSENCE.POINTS}).then(Api.toJSON)
@@ -81,7 +84,7 @@ export default class Api {
   static checkStatus(response) {
     if (
       response.status < SuccessHTTPStatusRange.MIN ||
-            response.status > SuccessHTTPStatusRange.MAX
+        response.status > SuccessHTTPStatusRange.MAX
     ) {
       throw new Error(`${response.status}: ${response.statusText}`);
     }
