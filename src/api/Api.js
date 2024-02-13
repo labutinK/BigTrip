@@ -1,4 +1,4 @@
-import Points from "./model/Points";
+import Points from "../model/Points";
 
 const METHODS = {
   GET: `GET`,
@@ -11,6 +11,7 @@ const ESSENCE = {
   POINTS: `points/`,
   OFFERS: `offers/`,
   DESTINATION: `destinations/`,
+  SYNC: `/points/sync`
 };
 
 const SuccessHTTPStatusRange = {
@@ -104,4 +105,15 @@ export default class Api {
   static catchError(err) {
     throw new Error(err);
   }
+
+  sync(data) {
+    return this._load({
+      url: ESSENCE.SYNC,
+      method: METHODS.POST,
+      body: JSON.stringify(data),
+      headers: new Headers({'Content-Type': `application/json`}),
+    })
+        .then(Api.toJSON);
+  }
+
 }

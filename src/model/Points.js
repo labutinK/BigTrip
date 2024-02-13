@@ -1,5 +1,6 @@
 import Observer from "./Observer";
 import {getDateInFormat, getDayjsObjInFormat} from "../utils/date";
+
 export default class Points extends Observer {
   constructor() {
     super();
@@ -57,7 +58,7 @@ export default class Points extends Observer {
         }
     );
 
-    if (pointServer.offers.length > 0) {
+    if (pointServer.offers && pointServer.offers.length > 0) {
       pointServer.offers = pointServer.offers.map(({name, cost}) => {
         return {title: name, price: cost};
       });
@@ -89,6 +90,7 @@ export default class Points extends Observer {
     this._notify(updateType, updateItem);
   }
 
+  // eslint-disable-next-line consistent-return
   createPoint(updateType, newItem) {
     if (Object.keys(newItem).length === 0) {
       return this._points;

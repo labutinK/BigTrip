@@ -22,3 +22,4 @@ export const FilterType = {
   FUTURE: `future`,
   PAST: `past`,
 };
+

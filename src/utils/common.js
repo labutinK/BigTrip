@@ -76,7 +76,7 @@ export const sortDate = (a, b) => {
   if (weight !== null) {
     return weight;
   }
-  return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
+  return dayjs(b.dateStart).isBefore(a.dateStart, `minute`) ? 1 : -1;
 };
 
 export const sortDuration = (a, b) => {
@@ -92,7 +92,7 @@ export const sortDuration = (a, b) => {
 export const sortCost = (a, b) => {
   a = isNaN(parseInt(a.cost, 10)) ? 0 : parseInt(a.cost, 10);
   b = isNaN(parseInt(b.cost, 10)) ? 0 : parseInt(b.cost, 10);
-  return a < b;
+  return b - a;
 };
 
 export const createElement = (template) => {
@@ -114,4 +114,9 @@ export const generateNewPoint = (serverData) => {
     dateEnd: dayjs(),
     isFavorite: false
   };
+};
+
+
+export const isOnline = () => {
+  return window.navigator.onLine;
 };
