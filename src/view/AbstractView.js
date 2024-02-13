@@ -1,10 +1,11 @@
-import {createElement} from "../utils/render";
+import {createElement} from "../utils/common";
 
 export default class AbstractView {
   constructor() {
     if (new.target === AbstractView) {
       throw new Error(`Can't instantiate Abstract, only concrete one.`);
     }
+    this._callback = {};
     this._element = null;
   }
 
@@ -22,4 +23,5 @@ export default class AbstractView {
   removeElement() {
     this._element = null;
   }
+
 }

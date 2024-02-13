@@ -1,48 +1,106 @@
-import Menu from "./view/Menu";
-import Filters from "./view/Filters";
-import Sorts from "./view/Sort";
-import {generatePoint} from "./mock/point";
-import {filters, menuItems} from "./mock/consts";
-import dayjs from "dayjs";
-import TripList from "./view/TripList";
-import {createPoint} from "./view/createPoint";
-import {renderElement, DOM_POSITIONS} from "./utils/render";
-import TripInfoView from "./view/TripInfo";
-import EmptyList from "./view/EmptyList";
+import Trip from "./presenter/Trip";
+import Points from "./model/Points";
+import FilterModel from "./model/Filter";
+import FiltersPresenter from './presenter/Filters';
+import {FilterType} from './const';
+import MenuPresenter from './presenter/Menu';
+import StatisticPresenter from './presenter/Statistic';
+import {UpdateType} from "./const";
+import Api from "./api/Api";
+import ServerData from "./model/ServerData";
+import Store from "./api/Store";
+import Provider from "./api/Provider";
+import {toastPermanent, toastRemove} from "./utils/toast";
+import {isOnline} from "./utils/common";
+import ErrorApi from "./presenter/ErrorApi";
 
 
-const POINTS_COUNT = 15;
+const STORE_VERSION = `v2`;
+const STORE_PREFIX = `bigtrip-localstorage`;
+const STORE_NAME = `${STORE_PREFIX}-${STORE_VERSION}`;
+const STORE_OFFER_PREFIX = `bigtrip-offer-localstorage`;
+const STORE_OFFER_NAME = `${STORE_OFFER_PREFIX}-${STORE_VERSION}`;
+const STORE_DESTINATION_PREFIX = `bigtrip-destination-localstorage`;
+const STORE_DESTINATION_NAME = `${STORE_DESTINATION_PREFIX}-${STORE_VERSION}`;
 
-const siteBodyElement = document.querySelector(`.page-body`);
-const siteHeaderElement = siteBodyElement.querySelector(`.page-header`);
-const headerTripWrapper = siteHeaderElement.querySelector(`.trip-main`);
-const headerNavWrapper = siteHeaderElement.querySelector(`.trip-controls__navigation`);
-const headerFiltersWrapper = siteHeaderElement.querySelector(`.trip-controls__filters`);
-const contentWrapper = siteBodyElement.querySelector(`.trip-events`);
+let htmlWrapper = document.querySelector(`.page-body`);
+let headerFilterWrapper = document.querySelector(`.trip-controls__filters`);
+
+let filtersModel = new FilterModel();
+let PointsModel = new Points();
+
+const ApiClass = new Api(`https://14.ecmascript.htmlacademy.pro/big-trip/`, `Basic fskdDASl%)ds$tg`);
+const store = new Store(STORE_NAME, window.localStorage);
+const apiWithProvider = new Provider(ApiClass, store);
+const storeOffer = new Store(STORE_OFFER_NAME, window.localStorage);
+const apiWithProviderOffer = new Provider(ApiClass, storeOffer);
+const storeDestination = new Store(STORE_DESTINATION_NAME, window.localStorage);
+const apiWithProviderDestination = new Provider(ApiClass, storeDestination);
 
 
-let points = new Array(POINTS_COUNT).fill().map(() => generatePoint()).sort(function (a, b) {
-  return dayjs(b.dateStart).isBefore(a.dateStart, `minute`);
+let servData = new ServerData();
+Promise.all([apiWithProviderOffer.getOffers(), apiWithProviderDestination.getDestinations()]).then(([offers, destinations]) => {
+  let servOffers = new Map();
+  let servPointTypes = [];
+
+  offers.forEach((offerServer) => {
+    let clientOffers = offerServer.offers.map(({title, price}) => {
+      return {name: title, cost: price, formName: title};
+    });
+    servPointTypes.push(offerServer.type);
+    servOffers.set(offerServer.type, clientOffers);
+  });
+
+  servData.pointTypes = servPointTypes;
+  servData.offers = servOffers;
+
+  let servDestinations = new Map();
+  let servTowns = [];
+
+  destinations.forEach((destination) => {
+    let destinationInfo = {
+      name: destination.name,
+      description: destination.description,
+      pictures: destination.pictures
+    };
+    servDestinations.set(destination.name, destinationInfo);
+    servTowns.push(destination.name);
+  });
+
+  servData.destinations = servDestinations;
+  servData.towns = servTowns;
+  return servData;
+
+}).then((serverData) => {
+  const TripPresenter = new Trip(htmlWrapper, PointsModel, filtersModel, serverData, apiWithProvider);
+
+  apiWithProvider.getPoints().then((points) => {
+    PointsModel.setPoints(UpdateType.INIT, points);
+    let FilterPresenter = new FiltersPresenter(headerFilterWrapper, FilterType, filtersModel, PointsModel);
+    const StatsPresenter = new StatisticPresenter(TripPresenter, PointsModel);
+
+    new MenuPresenter(TripPresenter, StatsPresenter, FilterPresenter);
+  });
+}).catch((e) => {
+  new ErrorApi(htmlWrapper).init(e.message);
 });
 
-const createBoard = (pointsData) => {
-
-  if (pointsData.length > 0) {
-    renderElement(headerTripWrapper, (new TripInfoView(pointsData)).getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
-
-    renderElement(contentWrapper, (new Sorts()).getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
-
-    const tripListElement = new TripList();
-    renderElement(contentWrapper, tripListElement.getElement(), DOM_POSITIONS[`BEFOREEND`]);
-    pointsData.forEach((point) => {
-      createPoint(tripListElement.getElement(), point);
-    });
-  } else {
-    renderElement(contentWrapper, new EmptyList().getElement(), DOM_POSITIONS[`AFTERBEGIN`]);
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/sw.js`);
+  if (!isOnline()) {
+    toastPermanent();
   }
-  renderElement(headerFiltersWrapper, (new Filters(filters)).getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
-  renderElement(headerNavWrapper, (new Menu(menuItems)).getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
-};
+});
 
 
-createBoard(points);
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+  apiWithProvider.sync();
+  toastRemove();
+});
+
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
+  toastPermanent();
+});

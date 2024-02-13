@@ -1,10 +1,10 @@
 import AbstractView from "./AbstractView";
 
-const createMenu = (menuItems) => {
+const createMenu = (menuItems, activeItem) => {
   const getMenuItems = () => {
-    return menuItems.reduce(function (sum, cur) {
-      let activeClass = cur.checked ? `trip-tabs__btn--active` : ``;
-      return sum + `<a class="trip-tabs__btn ${activeClass}" href="${cur.href}">${cur.label}</a>`;
+    return Object.values(menuItems).reduce(function (sum, cur) {
+      let activeClass = cur === activeItem ? `trip-tabs__btn--active` : ``;
+      return sum + `<a class="trip-tabs__btn ${activeClass}" href="#" data-menu-item="${cur}">${cur}</a>`;
     }, ``);
   };
 
@@ -17,12 +17,33 @@ const createMenu = (menuItems) => {
 
 
 export default class Menu extends AbstractView {
-  constructor(items) {
+  constructor(items, activeItem) {
     super();
     this._items = items;
+    this._activeItem = activeItem;
+    this._menuItemClickHandler = this._menuItemClickHandler.bind(this);
   }
 
   getTemplate() {
-    return createMenu(this._items);
+    return createMenu(this._items, this._activeItem);
+  }
+
+  setMenuClickHandler(cb) {
+    this._callback.menuItemChange = cb;
+    this._menuElements = this.getElement().querySelectorAll(`.trip-tabs a`);
+    if (this._menuElements) {
+      [...this._menuElements].forEach((menuElement) => {
+        menuElement.addEventListener(`click`, this._menuItemClickHandler);
+      });
+    }
+  }
+
+  _menuItemClickHandler(evt) {
+    evt.preventDefault();
+    const clickedMenuItem = evt.target.getAttribute(`data-menu-item`);
+    if (clickedMenuItem !== this._activeItem) {
+      this._activeItem = clickedMenuItem;
+      this._callback.menuItemChange(clickedMenuItem);
+    }
   }
 }

@@ -7,6 +7,7 @@
     "eslint": "eslint src/",
     "test": "npm run eslint",
     "build": "webpack --mode development",
+    "proxy": "lcp --proxyUrl https://14.ecmascript.pages.academy",
     "start": "webpack-dev-server --open"
   },
   "devDependencies": {
@@ -21,7 +22,18 @@
     "node": "12"
   },
   "dependencies": {
+    "chart.js": "2.9.4",
+    "chartjs-plugin-datalabels": "0.7.0",
+    "choices.js": "^10.2.0",
+    "cors": "^2.8.5",
+    "cors-anywhere": "^0.4.4",
+    "css-loader": "5.0.1",
     "dayjs": "^1.11.10",
-    "flatpickr": "^4.6.13"
+    "express": "^4.18.2",
+    "flatpickr": "^4.6.13",
+    "nanoid": "^5.0.4",
+    "select2": "^4.1.0-rc.0",
+    "selectize": "^0.12.6",
+    "style-loader": "^2.0.0"
   }
 }
