@@ -12,7 +12,7 @@ import {filtersUtils} from "../utils/filter";
 import TripInfo from "../view/TripInfo";
 import NewPoint from "./NewPoint";
 import LoadingView from "../view/Loading";
-import Points from "../model/Points";
+import AddButton from "../view/AddButton";
 
 
 dayjs.extend(duration);
@@ -27,14 +27,13 @@ export default class Trip {
     this._serverData = serverData;
     this._api = api;
 
+
     this._htmlElements = {
       siteBody: this._htmlWrapper.querySelector(`.page-body`),
       siteHeader: this._htmlWrapper.querySelector(`.page-header`),
       headerTripWrapper: this._htmlWrapper.querySelector(`.trip-main`),
-      addNewBtn: this._htmlWrapper.querySelector(`.trip-main__event-add-btn`),
     };
     this.contentWrapper = this._htmlWrapper.querySelector(`.trip-events`);
-
 
     this._handleChangeView = this._handleChangeView.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
@@ -43,9 +42,13 @@ export default class Trip {
     this._renderBoard = this._renderBoard.bind(this);
     this._handleAddNew = this._handleAddNew.bind(this);
     this._disableAddNewBtnHandler = this._disableAddNewBtnHandler.bind(this);
+    this._addNewFormClose = this._addNewFormClose.bind(this);
+    this._addNewBtn = new AddButton();
 
-    this._htmlElements.addNewBtn.addEventListener(`click`, this._handleAddNew);
-    this._addPointForm = new NewPoint(this._tripList, this._handleChangeView, this._disableAddNewBtnHandler, this._serverData);
+    renderElement(this._htmlElements.headerTripWrapper, this._addNewBtn.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+
+    this._addNewBtn.setClickHandler(this._handleAddNew);
+    this._addPointForm = new NewPoint(this._tripList, this._handleChangeView, this._disableAddNewBtnHandler, this._serverData, this._addNewFormClose);
 
     this._points = points;
 
@@ -55,6 +58,13 @@ export default class Trip {
     this._pointPresenter = {};
     this._tripInfo = null;
     this._preloader();
+  }
+
+  disableAddbtn() {
+    this._addNewBtn.disable();
+  }
+  enableAddbtn() {
+    this._addNewBtn.enable();
   }
 
   _preloader() {
@@ -98,42 +108,56 @@ export default class Trip {
     }
   }
 
+  _addNewFormClose(addedNew) {
+    this.enableAddbtn();
+    if (addedNew && this._boardPoints.length === 0) {
+      this._renderEmptyList();
+    }
+  }
+
 
   _disableAddNewBtnHandler() {
-    this._htmlElements.addNewBtn.disabled = false;
+    this.enableAddbtn();
   }
+
 
   _handleAddNew() {
     this._filtersModel.setFilter(UpdateType.MAJOR, FilterType.ALL);
+    if (this._boardPoints.length === 0) {
+      remove(this._emptyList);
+      renderElement(this.contentWrapper, this._tripList.getElement(), DOM_POSITIONS[`BEFOREEND`]);
+    }
     this._addPointForm.init();
-    this._htmlElements.addNewBtn.disabled = true;
+    this.disableAddbtn();
   }
 
-  _handleChangeView(action, type, element, startProcessing = () => {}, failedProcessing = () => {}) {
+  _handleChangeView(action, type, element, startProcessing = () => {
+  }, failedProcessing = () => {
+  }) {
     switch (action) {
       case UserActions.UPDATE:
         startProcessing(UserActions.UPDATE);
         this._api.updatePoint(element.id, element)
-            .then((updated) => {
-              this._points.updatePoint(type, updated);
-            }).catch(() => {
-              failedProcessing();
-            });
+                    .then((updated) => {
+                      this._points.updatePoint(type, updated);
+                    }).catch(() => {
+                      failedProcessing();
+                    });
         break;
       case UserActions.DELETE:
         startProcessing(UserActions.DELETE);
         this._api.deletePoint(element.id)
-            .then(() => {
-              this._points.deletePoint(type, element);
-            }).catch(() => {
-              failedProcessing();
-            });
+                    .then(() => {
+                      this._points.deletePoint(type, element);
+                    }).catch(() => {
+                      failedProcessing();
+                    });
         break;
       case UserActions.CREATE:
         this._api.createPoint(element)
-            .then((created) => {
-              this._points.createPoint(type, created);
-            });
+                    .then((created) => {
+                      this._points.createPoint(type, created);
+                    });
         break;
     }
   }
@@ -184,7 +208,9 @@ export default class Trip {
     for (let renderedPoint of Object.values(this._pointPresenter)) {
       renderedPoint.destroy();
     }
-    remove(this._sorts);
+    if (this._sorts) {
+      remove(this._sorts);
+    }
     remove(this._emptyList);
     this._pointPresenter = {};
     this._addPointForm.destroy();
@@ -192,7 +218,23 @@ export default class Trip {
     if (resetSortType) {
       this._currentSortType = SORT_TYPES.date;
     }
-    if (newTripInfo) {
+    if (newTripInfo && this._tripInfo) {
+      remove(this._tripInfo);
+    }
+  }
+
+  clearAll() {
+    for (let renderedPoint of Object.values(this._pointPresenter)) {
+      renderedPoint.destroy();
+    }
+    if (this._sorts) {
+      remove(this._sorts);
+    }
+    remove(this._emptyList);
+    this._pointPresenter = {};
+    this._addPointForm.destroy();
+
+    if (this._tripInfo) {
       remove(this._tripInfo);
     }
   }

@@ -12,6 +12,7 @@ import Store from "./api/Store";
 import Provider from "./api/Provider";
 import {toastPermanent, toastRemove} from "./utils/toast";
 import {isOnline} from "./utils/common";
+import ErrorApi from "./presenter/ErrorApi";
 
 
 const STORE_VERSION = `v2`;
@@ -75,11 +76,13 @@ Promise.all([apiWithProviderOffer.getOffers(), apiWithProviderDestination.getDes
 
   apiWithProvider.getPoints().then((points) => {
     PointsModel.setPoints(UpdateType.INIT, points);
-    let FilterPresenter = new FiltersPresenter(headerFilterWrapper, FilterType, filtersModel);
+    let FilterPresenter = new FiltersPresenter(headerFilterWrapper, FilterType, filtersModel, PointsModel);
     const StatsPresenter = new StatisticPresenter(TripPresenter, PointsModel);
 
     new MenuPresenter(TripPresenter, StatsPresenter, FilterPresenter);
   });
+}).catch((e) => {
+  new ErrorApi(htmlWrapper).init(e.message);
 });
 
 window.addEventListener(`load`, () => {
@@ -99,6 +102,5 @@ window.addEventListener(`online`, () => {
 
 window.addEventListener(`offline`, () => {
   document.title += ` [offline]`;
-  console.log(`123`);
   toastPermanent();
 });

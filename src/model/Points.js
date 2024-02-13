@@ -46,6 +46,22 @@ export default class Points extends Observer {
     return pointClient;
   }
 
+  static adaptFromStore(pointStore) {
+    const dateStartCopy = getDayjsObjInFormat(pointStore.dateStart);
+    const dateEndCopy = getDayjsObjInFormat(pointStore.dateEnd);
+
+    const r = Object.assign(
+        {},
+        pointStore,
+        {
+          dateStart: dateStartCopy,
+          dateEnd: dateEndCopy,
+        }
+    );
+
+    return r;
+  }
+
   static adaptClientToPoint(pointClient) {
     const pointServer = Object.assign(
         {},
@@ -58,7 +74,7 @@ export default class Points extends Observer {
         }
     );
 
-    if (pointServer.offers && pointServer.offers.length > 0) {
+    if (pointServer.offers.length > 0) {
       pointServer.offers = pointServer.offers.map(({name, cost}) => {
         return {title: name, price: cost};
       });

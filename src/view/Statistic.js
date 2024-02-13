@@ -32,7 +32,6 @@ const createStatisticTemplate = () => {
 export default class Statistic extends AbstractView {
   constructor(money, type, time) {
     super();
-    this._moneyBlock = this.getElement().querySelector(`#money`);
     this._money = money;
     this._type = type;
     this._time = time;
@@ -51,7 +50,7 @@ export default class Statistic extends AbstractView {
 
   _installStatistic(element, title, labels, dateset, formater = (val) => val) {
     const BAR_HEIGHT = 55;
-    this._moneyBlock.height = BAR_HEIGHT * labels.length;
+    element.height = BAR_HEIGHT * labels.length;
 
     new Chart(element, {
       plugins: [ChartDataLabels],

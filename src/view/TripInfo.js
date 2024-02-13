@@ -4,8 +4,15 @@ import AbstractView from "./AbstractView";
 const createTripInfoTemplate = (points) => {
   if (points.length > 0) {
     let cost = points.reduce(function (sum, current) {
+      let offersCost = 0;
+      if (current.offers && current.offers.length > 0) {
+        offersCost = current.offers.reduce(function (offersSum, cur) {
+          const curOfferCost = isNaN(parseInt(cur.cost, 10)) ? 0 : parseInt(cur.cost, 10);
+          return parseInt(offersSum, 10) + curOfferCost;
+        }, 0);
+      }
       const curCost = isNaN(parseInt(current.cost, 10)) ? 0 : parseInt(current.cost, 10);
-      return parseInt(sum, 10) + curCost;
+      return parseInt(sum, 10) + curCost + offersCost;
     }, 0);
 
     let tempTown = ``;
@@ -57,11 +64,11 @@ const createTripInfoTemplate = (points) => {
 export default class TripInfo extends AbstractView {
   constructor(points) {
     super();
-    this._point = points;
+    this._points = points;
   }
 
   getTemplate() {
-    return createTripInfoTemplate(this._point);
+    return createTripInfoTemplate(this._points);
   }
 }
 

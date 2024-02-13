@@ -41,6 +41,7 @@ export default class Menu {
   _renderMenu() {
     renderElement(this._menuWrapper, this._menuView.getElement(), DOM_POSITIONS[`BEFOREBEGIN`]);
   }
+
   _renderContent() {
     switch (this._activeMenuItem) {
       case menuItems.STATS:

@@ -1,6 +1,6 @@
 import {DOM_POSITIONS, renderElement, replace} from "../utils/render";
 import StatisticView from "../view/Statistic";
-import {getDateDiffInMinutes, formatDateFromMintutes} from "../utils/date";
+import {getDateDiffInMinutes} from "../utils/date";
 
 export default class Statistic {
   constructor(tripPresenter, pointsModel) {
@@ -21,10 +21,17 @@ export default class Statistic {
 
   _getMoneyStatistic() {
     let moneyStatistic = {};
-    this._pointsModel.getPoints().forEach(({type, cost}) => {
-      const curCost = isNaN(parseInt(cost, 10)) ? 0 : parseInt(cost, 10);
+    this._pointsModel.getPoints().forEach(({type, cost, offers}) => {
+      let offersCost = 0;
+      if (offers && offers.length > 0) {
+        offersCost = offers.reduce(function (offersSum, cur) {
+          const curOfferCost = isNaN(parseInt(cur.cost, 10)) ? 0 : parseInt(cur.cost, 10);
+          return parseInt(offersSum, 10) + curOfferCost;
+        }, 0);
+      }
+      let curCost = isNaN(parseInt(cost, 10)) ? 0 : parseInt(cost, 10);
       moneyStatistic[type] = isNaN(parseInt(moneyStatistic[type], 10)) ? 0 : parseInt(moneyStatistic[type], 10);
-      moneyStatistic[type] += curCost;
+      moneyStatistic[type] += (curCost + offersCost);
     });
 
     return this._sortObjFromBigToLower(moneyStatistic);
